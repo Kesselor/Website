@@ -1,35 +1,123 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kicker Replica</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Kicker Sports News</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .nav-text-red {
+            color: #dc2626;
+        }
+        .nav-item {
+            display: inline-block;
+            margin-right: 1rem;
+        }
+        .news-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .news-time {
+            color: #94a3b8;
+        }
+    </style>
 </head>
-<body>
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="matches.html">Matches</a></li>
-            <!-- ... other nav links ... -->
-        </ul>
-    </nav>
-    <header>
-        <div class="logo">Kicker Replica</div>
-    </header>
-    <main style="opacity: 0;">
-        <div class="sports-picture">
-            <!-- Sports picture goes here -->
+<body class="bg-white text-black">
+    <div class="container mx-auto px-4">
+        <div class="py-4">
+            <!-- Top navigation -->
+            <div class="flex justify-between items-center border-b-2 border-red-600 py-2">
+                <div class="flex gap-2">
+                    <div class="nav-item nav-text-red font-bold">Bundesliga</div>
+                    <div class="nav-item">2. Bundesliga</div>
+                    <div class="nav-item">3. Liga</div>
+                    <div class="nav-item">Regionalliga</div>
+                    <div class="nav-item">Amateure</div>
+                    <div class="nav-item">DFB-Pokal</div>
+                </div>
+                <div class="flex gap-2">
+                    <div class="nav-item">Int. Fußball</div>
+                    <div class="nav-item">Champions League</div>
+                    <div class="nav-item">Europa League</div>
+                    <div class="nav-item">Conference League</div>
+                    <div class="nav-item">Nationalself</div>
+                    <div class="nav-item">WM</div>
+                </div>
+                <div class="flex gap-2">
+                    <div class="nav-item">EM</div>
+                    <div class="nav-item">Nations League</div>
+                    <div class="nav-item">Frauen</div>
+                    <div class="nav-item">Junioren</div>
+                    <div class="nav-item">Afrika-Cup</div>
+                    <div class="nav-item">Asien-Cup</div>
+                </div>
+            </div>
+            <!-- Main news header -->
+            <div class="text-red-600 font-bold text-4xl mt-4">
+                Fünf Tage Portugal: Das fiel beim FC Bayern auf
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <!-- Main news image -->
+                <div class="col-span-2">
+                    <img src="https://placehold.co/600x300" alt="FC Bayern team lined up on the field" class="w-full h-auto">
+                </div>
+                <!-- Sub news items -->
+                <div class="news-item">
+                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                    <span class="news-time">Vor 15 Minuten</span>
+                    <p>Leipzig perfekt: Hertha greift bei Barak zu</p>
+                </div>
+                <div class="news-item">
+                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                    <span class="news-time">Vor 23 Minuten</span>
+                    <p>Mehr Stimmen als Torjäger: Wind: Cozza wird zum Wolfsburger Can</p>
+                </div>
+                <div class="news-item">
+                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                    <span class="news-time">Vor 43 Minuten</span>
+                    <p>Fünf Tage Portugal: Das fiel beim FC Bayern auf</p>
+                </div>
+                <div class="news-item">
+                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                    <span class="news-time">Vor 2 Stunden</span>
+                    <p>Streich über Sýkora: "Nichts ist ausgeschlossen"</p>
+                </div>
+                <div class="news-item">
+                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                    <span class="news-time">Vor 2 Stunden</span>
+                    <p>Die Winter-Neuzugänge der Bundesliga</p>
+                </div>
+                <div class="news-item">
+                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                    <span class="news-time">Vor 2 Stunden</span>
+                    <p>Als Becker-Ersatz: Union schnappt sich "Hybrid-Stürmer" Behia</p>
+                </div>
+            </div>
+            <!-- Bottom icons navigation -->
+            <div class="flex justify-center items-center gap-4 mt-4">
+                <div class="text-red-600"><i class="fas fa-futbol"></i></div>
+                <div class="text-gray-500"><i class="fas fa-handball"></i></div>
+                <div class="text-gray-500"><i class="fas fa-hockey-puck"></i></div>
+                <div class="text-gray-500"><i class="fas fa-basketball-ball"></i></div>
+                <div class="text-gray-500"><i class="fas fa-motorcycle"></i></div>
+                <div class="text-gray-500"><i class="fas fa-snowboarding"></i></div>
+                <div class="text-gray-500"><i class="fas fa-swimmer"></i></div>
+                <div class="text-gray-500"><i class="fas fa-running"></i></div>
+                <div class="text-gray-500"><i class="fas fa-gamepad"></i></div>
+                <div class="text-gray-500"><i class="fas fa-headphones"></i></div>
+                <div class="text-gray-500"><i class="fas fa-shopping-bag"></i></div>
+                <div class="text-gray-500"><i class="fas fa-user-graduate"></i></div>
+                <div class="text-gray-500"><i class="fas fa-briefcase"></i></div>
+                <div class="text-gray-500"><i class="fas fa-kids"></i></div>
+                <div class="text-gray-500"><i class="fas fa-more"></i></div>
+            </div>
         </div>
-        <section class="news-feed">
-            <!-- News articles will be populated here -->
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2024 Kicker Replica. All rights reserved.</p>
-    </footer>
-    <div class="load-animation">Loading...</div>
-    <script src="script.js"></script>
+    </div>
 </body>
 </html>
