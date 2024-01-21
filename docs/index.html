@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kicker Sports News</title>
+    <title>Champions Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -26,97 +26,363 @@
         .news-time {
             color: #94a3b8;
         }
+
+        /* Additional styles for the leaderboard table */
+        .leaderboard-table {
+            border-collapse: collapse;
+            width: 100%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Frame with shadow */
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .leaderboard-table th {
+            background-color: #f3f3f3;
+        }
+        .leaderboard-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .leaderboard-table tr:nth-child(odd) {
+            background-color: #fff;
+        }
+
+        /* Styles for Leaderboard Title */
+        .leaderboard-title {
+            text-align: center;
+            font-size: 24px; /* Example size, adjust as needed */
+            color: #333; /* Example color, adjust as needed */
+            margin-bottom: 10px; /* Spacing below the title */
+        }
+
+        /* Styles for two-column match day layout */
+        .match-day-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .match-day-column {
+            flex: 1;
+            margin-right: 10px;
+            text-align: center;
+            padding-top: 60px; /* Increased padding to create more space for the title */
+            position: relative; /* Ensure this is set for proper positioning of the title */
+        }
+
+        .match-day-column:last-child {
+            margin-right: 0;
+        }
+
+        /* Static titles using pseudo-elements */
+
+        .match-day-column#match-day-1:before,
+        .match-day-column#match-day-2:before {
+            content: attr(data-title);
+            display: block;
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 10; /* Ensure the title is above other content */
+        }
+
+        /* Styles for Match Day Titles */
+        .match-day-title {
+            text-align: center;
+            font-size: 24px; /* Example size, adjust as needed */
+            color: #333; /* Example color, adjust as needed */
+            margin-bottom: 10px; /* Spacing below the title */
+        }
+
+
+        /* Slideshow container */
+        .slideshow-container {
+          max-width: 600px;
+          position: relative;
+          margin: auto;
+        }
+
+        /* Hide the images by default */
+        .mySlides {
+          display: none;
+        }
+
+        /* Next & previous buttons */
+        .prev, .next {
+          cursor: pointer;
+          position: absolute;
+          top: 50%;
+          width: auto;
+          padding: 16px;
+          margin-top: -22px;
+          color: white;
+          font-weight: bold;
+          font-size: 18px;
+          transition: 0.6s ease;
+          border-radius: 0 3px 3px 0;
+          user-select: none;
+        }
+
+        /* Position the "next button" to the right */
+        .next {
+          right: 0;
+          border-radius: 3px 0 0 3px;
+        }
+
+        /* Fading animation */
+        .fade {
+          animation-name: fade;
+          animation-duration: 1.5s;
+        }
+
+        @keyframes fade {
+          from {opacity: .4}
+          to {opacity: 1}
+        }
+
+
     </style>
+ 
+    <script>
+    // Function to simulate fetching match day data
+    function fetchMatchDayData() {
+        // Sample data - replace with actual data fetching logic
+        return [
+            { player1: "Player1", player2: "Player2", result: "- : -" },
+            { player1: "Player3", player2: "Player4", result: "- : -" },
+            // ... more matches
+        ];
+    }
+
+    // Updated function to update a specific match day column
+    function updateMatchDay(elementId, matches) {
+        const matchDayElement = document.getElementById(elementId);
+
+        matchDayElement.innerHTML = ''; // Clear existing content
+        matches.forEach(match => {
+            const matchElement = document.createElement('div');
+            matchElement.textContent = `${match.player1} vs ${match.player2} - Result: ${match.result}`;
+            matchElement.classList.add('match-item');
+            matchDayElement.appendChild(matchElement);
+        });
+    }
+
+    // Call to update match days on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateLeaderboard();
+        const matches = fetchMatchDayData();
+        updateMatchDay('match-day-1', matches); // Update first match day
+        updateMatchDay('match-day-2', matches); // Update second match day (or fetch different data)
+    });
+
+    // Function to simulate fetching leaderboard data
+    function fetchLeaderboardData() {
+        return [
+            { name: "Player1", goals: Math.floor(Math.random() * 10), points: Math.floor(Math.random() * 100) },
+            { name: "Player2", goals: Math.floor(Math.random() * 10), points: Math.floor(Math.random() * 100) },
+            { name: "Player3", goals: Math.floor(Math.random() * 10), points: Math.floor(Math.random() * 100) },
+            { name: "Player4", goals: Math.floor(Math.random() * 10), points: Math.floor(Math.random() * 100) }
+        ];
+    }
+
+    // Function to sort leaderboard data
+    function sortLeaderboard(data) {
+        return data.sort((a, b) => {
+            if (a.points === b.points) {
+                return b.goals - a.goals; // Higher goals first if points are equal
+            }
+            return b.points - a.points; // Higher points first
+        });
+    }
+
+    // Function to update the leaderboard
+    function updateLeaderboard() {
+        const leaderboardData = sortLeaderboard(fetchLeaderboardData());
+        const tbody = document.getElementById('leaderboard-body');
+
+        tbody.innerHTML = ''; // Clear existing rows
+        leaderboardData.forEach((player, index) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = index + 1; // Rank
+            row.insertCell(1).textContent = player.name;
+            row.insertCell(2).textContent = player.goals;
+            row.insertCell(3).textContent = player.points;
+        });
+    }
+
+    // Update the leaderboard every 5 seconds
+    setInterval(updateLeaderboard, 5000);
+    
+    // Initial update
+    document.addEventListener('DOMContentLoaded', updateLeaderboard);
+    
+    // Slideshow
+    var slideIndex = 1;
+
+    function plusSlides(n) {
+    showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+    showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+    var i;
+    var slides = document.getElementsByClassName("mySlides");
+    if (n > slides.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = slides.length}
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    slides[slideIndex-1].style.display = "block";
+    }
+
+    // Event listener for DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', function() {
+        updateLeaderboard();
+        const matches = fetchMatchDayData();
+        updateMatchDay('match-day-1', matches);
+        updateMatchDay('match-day-2', matches);
+        
+        // Initialize the slideshow
+        showSlides(slideIndex);
+    });
+</script>
 </head>
+
+
 <body class="bg-white text-black">
     <div class="container mx-auto px-4">
         <div class="py-4">
+
             <!-- Top navigation -->
             <div class="flex justify-between items-center border-b-2 border-red-600 py-2">
                 <div class="flex gap-2">
-                    <div class="nav-item nav-text-red font-bold">Bundesliga</div>
-                    <div class="nav-item">2. Bundesliga</div>
-                    <div class="nav-item">3. Liga</div>
-                    <div class="nav-item">Regionalliga</div>
-                    <div class="nav-item">Amateure</div>
-                    <div class="nav-item">DFB-Pokal</div>
-                </div>
-                <div class="flex gap-2">
-                    <div class="nav-item">Int. Fußball</div>
-                    <div class="nav-item">Champions League</div>
-                    <div class="nav-item">Europa League</div>
-                    <div class="nav-item">Conference League</div>
-                    <div class="nav-item">Nationalself</div>
-                    <div class="nav-item">WM</div>
-                </div>
-                <div class="flex gap-2">
-                    <div class="nav-item">EM</div>
-                    <div class="nav-item">Nations League</div>
-                    <div class="nav-item">Frauen</div>
-                    <div class="nav-item">Junioren</div>
-                    <div class="nav-item">Afrika-Cup</div>
-                    <div class="nav-item">Asien-Cup</div>
+                    <a href="#" class="nav-item nav-text-red font-bold">Spiel 1</a>
+                    <a href="#" class="nav-item">Spiel 2</a>
+                    <a href="#" class="nav-item">Spiel 3</a>                   
                 </div>
             </div>
+
             <!-- Main news header -->
             <div class="text-red-600 font-bold text-4xl mt-4">
-                Fünf Tage Portugal: Das fiel beim FC Bayern auf
+                Fünf Tage Portugal: Paul verletzt, Fußballtennisturnier vor Abbruch
             </div>
+
             <div class="grid grid-cols-2 gap-4 mt-4">
-                <!-- Main news image -->
-                <div class="col-span-2">
-                    <img src="https://placehold.co/600x300" alt="FC Bayern team lined up on the field" class="w-full h-auto">
+                <!-- Slideshow container -->
+                <div class="slideshow-container mt-4 col-span-2">
+                    <!-- First Slide -->
+                    <div class="mySlides fade">
+                        <img src="https://placehold.co/600x300" style="width:100%">
+                    </div>
+
+                    <!-- Second Slide -->
+                    <div class="mySlides fade">
+                        <img src="https://placehold.co/600x300/" style="width:100%">
+                    </div>
+
+                    <!-- Third Slide -->
+                    <div class="mySlides fade">
+                        <img src="https://placehold.co/600x300/" style="width:100%">
+                    </div>
+
+                    <!-- Add more slides as needed -->
+
+                    <!-- Next and previous buttons -->
+                    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                    <a class="next" onclick="plusSlides(1)">&#10095;</a>
                 </div>
+                
+                <!-- Match Day Section -->
+                <div class="match-day-container col-span-2">
+                    <div class="match-day-column" id="match-day-1" data-title="Match Day 1">
+                        <!-- Match day 1 content -->
+                    </div>
+                    <div class="match-day-column" id="match-day-2" data-title="Match Day 2">
+                        <!-- Match day 2 content -->
+                    </div>
+                </div>
+                
+
+                <!-- Tabelle -->
+                <div class="mt-4 w-full col-span-2">
+                    <h2 class="leaderboard-title">Leaderboard</h2> <!-- Title for the Leaderboard -->
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                            <th>Rank</th>
+                            <th>Player Name</th>
+                                <th>Goals</th>
+                                <th>Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <!-- Leaderboard rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+
                 <!-- Sub news items -->
-                <div class="news-item">
-                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
-                    <span class="news-time">Vor 15 Minuten</span>
-                    <p>Leipzig perfekt: Hertha greift bei Barak zu</p>
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="news-item">
+                        <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                        <span class="news-time">Vor 15 Minuten</span>
+                        <p>Leipzig perfekt: Hertha greift bei Barak zu</p>
+                    </div>
+                    <div class="news-item">
+                        <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                        <span class="news-time">Vor 23 Minuten</span>
+                        <p>Mehr Stimmen als Torjäger: Wind: Cozza wird zum Wolfsburger Can</p>
+                    </div>
+                    <div class="news-item">
+                        <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                        <span class="news-time">Vor 43 Minuten</span>
+                        <p>Fünf Tage Portugal: Das fiel beim FC Bayern auf</p>
+                    </div>
+                    <div class="news-item">
+                        <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                        <span class="news-time">Vor 2 Stunden</span>
+                        <p>Streich über Sýkora: "Nichts ist ausgeschlossen"</p>
+                    </div>
+                    <div class="news-item">
+                        <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                        <span class="news-time">Vor 2 Stunden</span>
+                        <p>Die Winter-Neuzugänge der Bundesliga</p>
+                    </div>
+                    <div class="news-item">
+                        <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
+                        <span class="news-time">Vor 2 Stunden</span>
+                        <p>Als Becker-Ersatz: Union schnappt sich "Hybrid-Stürmer" Behia</p>
+                    </div>
                 </div>
-                <div class="news-item">
-                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
-                    <span class="news-time">Vor 23 Minuten</span>
-                    <p>Mehr Stimmen als Torjäger: Wind: Cozza wird zum Wolfsburger Can</p>
+                
+
+                <!-- Bottom icons navigation -->
+                <div class="flex justify-center items-center gap-4 mt-4">
+                    <div class="text-red-600"><i class="fas fa-futbol"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-handball"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-hockey-puck"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-basketball-ball"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-motorcycle"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-snowboarding"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-swimmer"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-running"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-gamepad"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-headphones"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-user-graduate"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-briefcase"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-kids"></i></div>
+                    <div class="text-gray-500"><i class="fas fa-more"></i></div>
                 </div>
-                <div class="news-item">
-                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
-                    <span class="news-time">Vor 43 Minuten</span>
-                    <p>Fünf Tage Portugal: Das fiel beim FC Bayern auf</p>
-                </div>
-                <div class="news-item">
-                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
-                    <span class="news-time">Vor 2 Stunden</span>
-                    <p>Streich über Sýkora: "Nichts ist ausgeschlossen"</p>
-                </div>
-                <div class="news-item">
-                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
-                    <span class="news-time">Vor 2 Stunden</span>
-                    <p>Die Winter-Neuzugänge der Bundesliga</p>
-                </div>
-                <div class="news-item">
-                    <img src="https://placehold.co/100" alt="News item thumbnail" class="inline-block mr-2">
-                    <span class="news-time">Vor 2 Stunden</span>
-                    <p>Als Becker-Ersatz: Union schnappt sich "Hybrid-Stürmer" Behia</p>
-                </div>
-            </div>
-            <!-- Bottom icons navigation -->
-            <div class="flex justify-center items-center gap-4 mt-4">
-                <div class="text-red-600"><i class="fas fa-futbol"></i></div>
-                <div class="text-gray-500"><i class="fas fa-handball"></i></div>
-                <div class="text-gray-500"><i class="fas fa-hockey-puck"></i></div>
-                <div class="text-gray-500"><i class="fas fa-basketball-ball"></i></div>
-                <div class="text-gray-500"><i class="fas fa-motorcycle"></i></div>
-                <div class="text-gray-500"><i class="fas fa-snowboarding"></i></div>
-                <div class="text-gray-500"><i class="fas fa-swimmer"></i></div>
-                <div class="text-gray-500"><i class="fas fa-running"></i></div>
-                <div class="text-gray-500"><i class="fas fa-gamepad"></i></div>
-                <div class="text-gray-500"><i class="fas fa-headphones"></i></div>
-                <div class="text-gray-500"><i class="fas fa-shopping-bag"></i></div>
-                <div class="text-gray-500"><i class="fas fa-user-graduate"></i></div>
-                <div class="text-gray-500"><i class="fas fa-briefcase"></i></div>
-                <div class="text-gray-500"><i class="fas fa-kids"></i></div>
-                <div class="text-gray-500"><i class="fas fa-more"></i></div>
-            </div>
         </div>
     </div>
 </body>
