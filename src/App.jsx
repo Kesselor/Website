@@ -1,5 +1,5 @@
-import './App.css';
 import React from 'react';
+import './App.css';
 
 function App() {
   const [page, setPage] = React.useState('home');
@@ -13,17 +13,20 @@ function App() {
     { date: '17.05.2025', league: 'League Game', home: 'Red Rockets', away: 'Green Giants', score: '1 : 1' },
     { date: '16.05.2025', league: 'League Game', home: 'Blue Bears', away: 'Yellow Yaks', score: '2 : 2' },
   ];
-  const schedule = [
-    { date: '25.05.2025', league: 'League Game', home: 'Red Rockets', away: 'Green Giants', time: '18:00' },
-    { date: '26.05.2025', league: 'League Game', home: 'Blue Bears', away: 'Yellow Yaks', time: '19:00' },
-    { date: '27.05.2025', league: 'Friendly Match', home: 'Red Rockets', away: 'Yellow Yaks', time: '17:30' },
-  ];
   // Standings based on results above
   const standings = [
     { team: 'Red Rockets', played: 4, w: 2, d: 2, l: 0, gf: 10, ga: 6, pts: 8 },
     { team: 'Blue Bears', played: 4, w: 2, d: 1, l: 1, gf: 6, ga: 6, pts: 7 },
     { team: 'Green Giants', played: 4, w: 1, d: 3, l: 0, gf: 4, ga: 4, pts: 6 },
     { team: 'Yellow Yaks', played: 4, w: 0, d: 2, l: 2, gf: 6, ga: 10, pts: 2 },
+  ];
+  // Mock schedule data for upcoming games
+  const schedule = [
+    { date: '28.05.2025', league: 'League Game', home: 'Red Rockets', away: 'Green Giants', time: '18:00' },
+    { date: '29.05.2025', league: 'League Game', home: 'Blue Bears', away: 'Yellow Yaks', time: '19:00' },
+    { date: '31.05.2025', league: 'Friendly Match', home: 'Green Giants', away: 'Red Rockets', time: '17:30' },
+    { date: '02.06.2025', league: 'League Game', home: 'Yellow Yaks', away: 'Blue Bears', time: '20:00' },
+    { date: '05.06.2025', league: 'League Game', home: 'Red Rockets', away: 'Yellow Yaks', time: '18:30' },
   ];
 
   return (
@@ -94,27 +97,7 @@ function App() {
             </>
           )}
           {page === 'results' && <ResultsScroller results={results} />}
-
-          {page === 'schedule' && (
-            <>
-              <h2 className="section-title">Upcoming Schedule</h2>
-              <div className="event-list">
-                {schedule.map((event, idx) => (
-                  <div className="event-card" key={idx}>
-                    <div className="event-header">
-                      <span className="event-league">{event.league}</span>
-                      <span className="event-date">{event.date} – {event.time}</span>
-                    </div>
-                    <div className="event-teams">
-                      <span className="team">{event.home}</span>
-                      <span className="score">vs</span>
-                      <span className="team">{event.away}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+          {page === 'schedule' && <SchedulePage schedule={schedule} />}
         </main>
         <aside className="sidebar">
           <h3>Highlights</h3>
@@ -132,7 +115,31 @@ function App() {
   );
 }
 
-// Helper component for scrolling through games for each team
+function SchedulePage({ schedule }) {
+  return (
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 500, minWidth: 320 }}>
+        <h2 className="section-title">Upcoming Schedule</h2>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', background: '#fff', border: '2px solid #0074D9', borderRadius: 12, boxShadow: '0 2px 12px #0074d922', marginBottom: 16, padding: '1.5rem 1.5rem 1rem 1.5rem' }}>
+          {schedule.map((event, idx) => (
+            <div className="event-card" key={idx} style={{ marginBottom: 16, minHeight: 70, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div className="event-header">
+                <span className="event-league">{event.league}</span>
+                <span className="event-date">{event.date} – {event.time}</span>
+              </div>
+              <div className="event-teams">
+                <span className="team">{event.home}</span>
+                <span className="score">vs</span>
+                <span className="team">{event.away}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ResultsScroller({ results }) {
   const [selectedTeam, setSelectedTeam] = React.useState(Array.from(new Set(results.flatMap(r => [r.home, r.away])))[0]);
   const teams = Array.from(new Set(results.flatMap(r => [r.home, r.away])));
@@ -221,6 +228,5 @@ function ResultsScroller({ results }) {
     </div>
   );
 }
-
 
 export default App;
