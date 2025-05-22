@@ -148,7 +148,7 @@ function ResultsScroller({ results }) {
 
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h2 className="section-title">Results by Team</h2>
+      <h2 className="section-title" style={{ width: '100%' }}>Results by Team</h2>
       {/* Team selection horizontal row */}
       <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 12, width: '100%' }}>
         {teams.map(team => (
