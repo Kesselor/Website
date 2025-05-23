@@ -1,3 +1,6 @@
+
+
+
 import React from 'react';
 import './App.css';
 
@@ -47,19 +50,23 @@ function App() {
             <>
               <h2 className="section-title">Latest Results</h2>
               <div className="event-list">
-                {results.slice(0, 2).map((event, idx) => (
-                  <div className="event-card" key={idx}>
-                    <div className="event-header">
-                      <span className="event-league">{event.league}</span>
-                      <span className="event-date">{event.date}</span>
+                {results.slice(0, 2).map((event, idx) => {
+                  // Determine winner for bolding
+                  const [homeScore, awayScore] = event.score.split(':').map(s => parseInt(s.trim(), 10));
+                  return (
+                    <div className="event-card" key={idx}>
+                      <div className="event-header">
+                        <span className="event-league">{event.league}</span>
+                        <span className="event-date">{event.date}</span>
+                      </div>
+                      <div className="event-teams">
+                        <span className="team" style={{ fontWeight: homeScore > awayScore ? 'bold' : 'normal' }}>{event.home}</span>
+                        <span className="score">{event.score}</span>
+                        <span className="team" style={{ fontWeight: awayScore > homeScore ? 'bold' : 'normal' }}>{event.away}</span>
+                      </div>
                     </div>
-                    <div className="event-teams">
-                      <span className="team">{event.home}</span>
-                      <span className="score">{event.score}</span>
-                      <span className="team">{event.away}</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <h2 className="section-title" style={{ marginTop: '2.5rem' }}>Standings</h2>
               <div className="standings-table-wrapper">
@@ -117,26 +124,28 @@ function App() {
 
 function SchedulePage({ schedule }) {
   return (
-    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div style={{ width: '100%', maxWidth: 500, minWidth: 320 }}>
-        <h2 className="section-title">Upcoming Schedule</h2>
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', background: '#fff', border: '2px solid #0074D9', borderRadius: 12, boxShadow: '0 2px 12px #0074d922', marginBottom: 16, padding: '1.5rem 1.5rem 1rem 1.5rem' }}>
-          {schedule.map((event, idx) => (
-            <div className="event-card" key={idx} style={{ marginBottom: 16, minHeight: 70, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <div className="event-header">
-                <span className="event-league">{event.league}</span>
-                <span className="event-date">{event.date} – {event.time}</span>
+    <>
+      <h2 className="section-title">Upcoming Schedule</h2>
+      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <div style={{ width: '100%', maxWidth: 500, minWidth: 320 }}>
+          <div className="event-list">
+            {schedule.slice(0, 5).map((event, idx) => (
+              <div className="event-card" key={idx}>
+                <div className="event-header">
+                  <span className="event-league">{event.league}</span>
+                  <span className="event-date">{event.date} – {event.time}</span>
+                </div>
+                <div className="event-teams">
+                  <span className="team">{event.home}</span>
+                  <span className="score">vs</span>
+                  <span className="team">{event.away}</span>
+                </div>
               </div>
-              <div className="event-teams">
-                <span className="team">{event.home}</span>
-                <span className="score">vs</span>
-                <span className="team">{event.away}</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -154,10 +163,10 @@ function ResultsScroller({ results }) {
   const currentGame = teamGames[gameIdx];
 
   return (
-    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <>
       <h2 className="section-title">Results by Team</h2>
       {/* Team selection horizontal row */}
-      <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 12, width: '100%' }}>
+      <div style={{ marginBottom: 0, display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 12, width: '100%' }}>
         {teams.map(team => (
           <button
             key={team}
@@ -184,48 +193,59 @@ function ResultsScroller({ results }) {
           </button>
         ))}
       </div>
+      {/* Centered Matchday box below team selection */}
       {teamGames.length === 0 ? (
-        <div>No games found for {selectedTeam}.</div>
+        <div style={{ marginTop: '1.5rem' }}>No games found for {selectedTeam}.</div>
       ) : (
-        <div style={{ width: '100%', maxWidth: 500, minWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'stretch', background: '#fff', border: '2px solid #0074D9', borderRadius: 12, boxShadow: '0 2px 12px #0074d922', marginBottom: 16, padding: '1.5rem 1.5rem 1rem 1.5rem' }}>
-          {/* Header with matchday, date, and team name */}
-          <div style={{ marginBottom: 16, borderBottom: '1px solid #e0e0e0', paddingBottom: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 2 }}>Matchday {currentGame.matchday}</div>
-            <div style={{ fontSize: 16, color: '#0074D9', marginBottom: 2 }}>{currentGame.date}</div>
-            <div style={{ fontSize: 18, fontWeight: 600, color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 400 }}>{selectedTeam}</div>
-          </div>
-          <div className="event-card" style={{ marginBottom: 16, minHeight: 70, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div className="event-header">
-              <span className="event-league">{currentGame.league}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+          <div style={{ width: '100%', maxWidth: 500, minWidth: 320, background: '#fff', border: '2px solid #0074D9', borderRadius: 12, boxShadow: '0 2px 12px #0074d922', margin: '1.5rem 0 16px 0', padding: '1.5rem 1.5rem 1rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
+            {/* Header with matchday, date, and team name */}
+            <div style={{ marginBottom: 16, borderBottom: '1px solid #e0e0e0', paddingBottom: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 2 }}>Matchday {currentGame.matchday}</div>
+              <div style={{ fontSize: 16, color: '#0074D9', marginBottom: 2 }}>{currentGame.date}</div>
+              <div style={{ fontSize: 18, fontWeight: 600, color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 400 }}>{selectedTeam}</div>
             </div>
-            <div className="event-teams">
-              <span className="team">{currentGame.home}</span>
-              <span className="score">{currentGame.score}</span>
-              <span className="team">{currentGame.away}</span>
+            <div className="event-card" style={{ marginBottom: 16, minHeight: 70, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div className="event-header">
+                <span className="event-league">{currentGame.league}</span>
+              </div>
+              <div className="event-teams">
+                {/* Bold the winning team */}
+                {(() => {
+                  const [homeScore, awayScore] = currentGame.score.split(':').map(s => parseInt(s.trim(), 10));
+                  return (
+                    <>
+                      <span className="team" style={{ fontWeight: homeScore > awayScore ? 'bold' : 'normal' }}>{currentGame.home}</span>
+                      <span className="score">{currentGame.score}</span>
+                      <span className="team" style={{ fontWeight: awayScore > homeScore ? 'bold' : 'normal' }}>{currentGame.away}</span>
+                    </>
+                  );
+                })()}
+              </div>
             </div>
-          </div>
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-            <button
-              className="nav-link"
-              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 'bold', border: '2px solid #0074D9', background: '#e6f0fa', color: '#0074D9', borderRadius: 6, padding: '0.3rem 1rem', opacity: gameIdx === 0 ? 0.5 : 1, transition: 'background 0.2s, border 0.2s' }}
-              onClick={() => setGameIdx(idx => Math.max(0, idx - 1))}
-              disabled={gameIdx === 0}
-            >
-              <span style={{ fontSize: 18, marginRight: 6 }}>←</span> Previous
-            </button>
-            <span style={{ alignSelf: 'center' }}>{gameIdx + 1} / {teamGames.length}</span>
-            <button
-              className="nav-link"
-              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 'bold', border: '2px solid #0074D9', background: '#e6f0fa', color: '#0074D9', borderRadius: 6, padding: '0.3rem 1rem', opacity: gameIdx === teamGames.length - 1 ? 0.5 : 1, transition: 'background 0.2s, border 0.2s' }}
-              onClick={() => setGameIdx(idx => Math.min(teamGames.length - 1, idx + 1))}
-              disabled={gameIdx === teamGames.length - 1}
-            >
-              Next <span style={{ fontSize: 18, marginLeft: 6 }}>→</span>
-            </button>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+              <button
+                className="nav-link"
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 'bold', border: '2px solid #0074D9', background: '#e6f0fa', color: '#0074D9', borderRadius: 6, padding: '0.3rem 1rem', opacity: gameIdx === 0 ? 0.5 : 1, transition: 'background 0.2s, border 0.2s' }}
+                onClick={() => setGameIdx(idx => Math.max(0, idx - 1))}
+                disabled={gameIdx === 0}
+              >
+                <span style={{ fontSize: 18, marginRight: 6 }}>←</span> Previous
+              </button>
+              <span style={{ alignSelf: 'center' }}>{gameIdx + 1} / {teamGames.length}</span>
+              <button
+                className="nav-link"
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 'bold', border: '2px solid #0074D9', background: '#e6f0fa', color: '#0074D9', borderRadius: 6, padding: '0.3rem 1rem', opacity: gameIdx === teamGames.length - 1 ? 0.5 : 1, transition: 'background 0.2s, border 0.2s' }}
+                onClick={() => setGameIdx(idx => Math.min(teamGames.length - 1, idx + 1))}
+                disabled={gameIdx === teamGames.length - 1}
+              >
+                Next <span style={{ fontSize: 18, marginLeft: 6 }}>→</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
