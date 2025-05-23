@@ -9,27 +9,27 @@ function App() {
 
   // Mock data
   const results = [
-    { date: '21.05.2025', league: 'Friendly Match', home: 'Red Rockets', away: 'Blue Bears', score: '3 : 2' },
-    { date: '20.05.2025', league: 'League Game', home: 'Green Giants', away: 'Yellow Yaks', score: '1 : 1' },
-    { date: '19.05.2025', league: 'League Game', home: 'Blue Bears', away: 'Green Giants', score: '2 : 0' },
-    { date: '18.05.2025', league: 'League Game', home: 'Red Rockets', away: 'Yellow Yaks', score: '4 : 1' },
-    { date: '17.05.2025', league: 'League Game', home: 'Red Rockets', away: 'Green Giants', score: '1 : 1' },
-    { date: '16.05.2025', league: 'League Game', home: 'Blue Bears', away: 'Yellow Yaks', score: '2 : 2' },
+    { date: '21.05.2025', league: 'Friendly Match', home: 'Paul', away: 'Max', score: '3 : 2' },
+    { date: '20.05.2025', league: 'League Game', home: 'Johan', away: 'Markus', score: '1 : 1' },
+    { date: '19.05.2025', league: 'League Game', home: 'Max', away: 'Johan', score: '2 : 0' },
+    { date: '18.05.2025', league: 'League Game', home: 'Paul', away: 'Markus', score: '4 : 1' },
+    { date: '17.05.2025', league: 'League Game', home: 'Paul', away: 'Johan', score: '1 : 1' },
+    { date: '16.05.2025', league: 'League Game', home: 'Max', away: 'Markus', score: '2 : 2' },
   ];
   // Standings based on results above
   const standings = [
-    { team: 'Red Rockets', played: 4, w: 2, d: 2, l: 0, gf: 10, ga: 6, pts: 8 },
-    { team: 'Blue Bears', played: 4, w: 2, d: 1, l: 1, gf: 6, ga: 6, pts: 7 },
-    { team: 'Green Giants', played: 4, w: 1, d: 3, l: 0, gf: 4, ga: 4, pts: 6 },
-    { team: 'Yellow Yaks', played: 4, w: 0, d: 2, l: 2, gf: 6, ga: 10, pts: 2 },
+    { team: 'Paul', played: 4, w: 2, d: 2, l: 0, gf: 10, ga: 6, pts: 8 },
+    { team: 'Max', played: 4, w: 2, d: 1, l: 1, gf: 6, ga: 6, pts: 7 },
+    { team: 'Johan', played: 4, w: 1, d: 3, l: 0, gf: 4, ga: 4, pts: 6 },
+    { team: 'Markus', played: 4, w: 0, d: 2, l: 2, gf: 6, ga: 10, pts: 2 },
   ];
   // Mock schedule data for upcoming games
   const schedule = [
-    { date: '28.05.2025', league: 'League Game', home: 'Red Rockets', away: 'Green Giants', time: '18:00' },
-    { date: '29.05.2025', league: 'League Game', home: 'Blue Bears', away: 'Yellow Yaks', time: '19:00' },
-    { date: '31.05.2025', league: 'Friendly Match', home: 'Green Giants', away: 'Red Rockets', time: '17:30' },
-    { date: '02.06.2025', league: 'League Game', home: 'Yellow Yaks', away: 'Blue Bears', time: '20:00' },
-    { date: '05.06.2025', league: 'League Game', home: 'Red Rockets', away: 'Yellow Yaks', time: '18:30' },
+    { date: '28.05.2025', league: 'League Game', home: 'Paul', away: 'Johan', time: '18:00' },
+    { date: '29.05.2025', league: 'League Game', home: 'Max', away: 'Markus', time: '19:00' },
+    { date: '31.05.2025', league: 'Friendly Match', home: 'Johan', away: 'Paul', time: '17:30' },
+    { date: '02.06.2025', league: 'League Game', home: 'Markus', away: 'Max', time: '20:00' },
+    { date: '05.06.2025', league: 'League Game', home: 'Paul', away: 'Markus', time: '18:30' },
   ];
 
   return (
@@ -109,9 +109,9 @@ function App() {
         <aside className="sidebar">
           <h3>Highlights</h3>
           <ul>
-            <li>Red Rockets unbeaten in 4 games</li>
-            <li>Blue Bears strong at home</li>
-            <li>Green Giants: 3 draws in 4 matches</li>
+            <li>Paul unbeaten in 4 games</li>
+            <li>Max strong at home</li>
+            <li>Johan: 3 draws in 4 matches</li>
           </ul>
         </aside>
       </div>
