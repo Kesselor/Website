@@ -1,8 +1,10 @@
 
 
 
+
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { db, initializeMockData } from './db';
 
 function App() {
   const [page, setPage] = useState('home');
@@ -17,30 +19,150 @@ function App() {
     setIsMobileMenuOpen(false);
   }, [page]);
 
-  // Mock data
-  const results = [
-    { date: '21.05.2025', league: 'Friendly Match', home: 'Paul', away: 'Max', score: '3 : 2' },
-    { date: '20.05.2025', league: 'League Game', home: 'Johan', away: 'Markus', score: '1 : 1' },
-    { date: '19.05.2025', league: 'League Game', home: 'Max', away: 'Johan', score: '2 : 0' },
-    { date: '18.05.2025', league: 'League Game', home: 'Paul', away: 'Markus', score: '4 : 1' },
-    { date: '17.05.2025', league: 'League Game', home: 'Paul', away: 'Johan', score: '1 : 1' },
-    { date: '16.05.2025', league: 'League Game', home: 'Max', away: 'Markus', score: '2 : 2' },
-  ];
-  // Standings based on results above
-  const standings = [
-    { team: 'Paul', played: 4, w: 2, d: 2, l: 0, gf: 10, ga: 6, pts: 8 },
-    { team: 'Max', played: 4, w: 2, d: 1, l: 1, gf: 6, ga: 6, pts: 7 },
-    { team: 'Johan', played: 4, w: 1, d: 3, l: 0, gf: 4, ga: 4, pts: 6 },
-    { team: 'Markus', played: 4, w: 0, d: 2, l: 2, gf: 6, ga: 10, pts: 2 },
-  ];
-  // Mock schedule data for upcoming games
-  const schedule = [
-    { date: '28.05.2025', league: 'League Game', home: 'Paul', away: 'Johan', time: '18:00' },
-    { date: '29.05.2025', league: 'League Game', home: 'Max', away: 'Markus', time: '19:00' },
-    { date: '31.05.2025', league: 'Friendly Match', home: 'Johan', away: 'Paul', time: '17:30' },
-    { date: '02.06.2025', league: 'League Game', home: 'Markus', away: 'Max', time: '20:00' },
-    { date: '05.06.2025', league: 'League Game', home: 'Paul', away: 'Markus', time: '18:30' },
-  ];
+
+  // State for DB data
+  const [teams, setTeams] = useState([]);
+  const [results, setResults] = useState([]); // flat results
+  const [matchdays, setMatchdays] = useState([]); // all matchdays
+  const [schedule, setSchedule] = useState([]);
+  const [standings, setStandings] = useState([]);
+
+  // Calculate standings from results
+  function calculateStandings(teamsArr, resultsArr) {
+    // Only include league games
+    const leagueResults = resultsArr.filter(r => r.league === 'League Game');
+    // Filter out duplicate games (same home, away, date, league)
+    const uniqueLeagueResults = leagueResults.filter((event, idx, arr2) =>
+      arr2.findIndex(e =>
+        e.home === event.home &&
+        e.away === event.away &&
+        e.date === event.date &&
+        e.league === event.league
+      ) === idx
+    );
+    // Map team name to stats
+    const stats = {};
+    teamsArr.forEach(t => {
+      const name = t.name || t; // t may be string or {name}
+      stats[name] = { team: name, played: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 };
+    });
+    uniqueLeagueResults.forEach(r => {
+      const [homeScore, awayScore] = r.score.split(':').map(s => parseInt(s.trim(), 10));
+      if (!stats[r.home] || !stats[r.away]) return;
+      stats[r.home].played++;
+      stats[r.away].played++;
+      stats[r.home].gf += homeScore;
+      stats[r.home].ga += awayScore;
+      stats[r.away].gf += awayScore;
+      stats[r.away].ga += homeScore;
+      if (homeScore > awayScore) {
+        stats[r.home].w++;
+        stats[r.home].pts += 3;
+        stats[r.away].l++;
+      } else if (homeScore < awayScore) {
+        stats[r.away].w++;
+        stats[r.away].pts += 3;
+        stats[r.home].l++;
+      } else {
+        stats[r.home].d++;
+        stats[r.away].d++;
+        stats[r.home].pts++;
+        stats[r.away].pts++;
+      }
+    });
+    // Sort by pts, then GD, then GF
+    return Object.values(stats).sort((a, b) =>
+      b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga) || b.gf - a.gf
+    );
+  }
+
+  // Load data from DB on mount
+  useEffect(() => {
+    async function loadData() {
+      await initializeMockData();
+      const [teamsArr, matchdaysArr, resultsArr, scheduleArr] = await Promise.all([
+        db.teams.toArray(),
+        db.matchdays.toArray(),
+        db.results.toArray(),
+        db.schedule.toArray()
+      ]);
+      setTeams(teamsArr);
+      setMatchdays(matchdaysArr);
+      setResults(resultsArr);
+      setSchedule(scheduleArr);
+      setStandings(calculateStandings(teamsArr, resultsArr));
+    }
+    loadData();
+  }, []);
+
+  // --- Dynamic Highlights Calculation ---
+  function getDynamicHighlights(standings, results) {
+    // Only count league games, unique by home/away/date/league
+    const leagueResults = results.filter(r => r.league === 'League Game');
+    const uniqueGames = leagueResults.filter((event, idx, arr2) =>
+      arr2.findIndex(e =>
+        e.home === event.home &&
+        e.away === event.away &&
+        e.date === event.date &&
+        e.league === event.league
+      ) === idx
+    );
+    // Build per-team stats and streaks
+    const teamStats = {};
+    standings.forEach(row => {
+      teamStats[row.team] = { ...row, streak: '', unbeaten: false };
+    });
+    // For each team, build a streak string
+    Object.keys(teamStats).forEach(team => {
+      // Get this team's games, sorted by date
+      const games = uniqueGames.filter(r => r.home === team || r.away === team)
+        .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      let streakType = null;
+      let streakCount = 0;
+      let unbeaten = true;
+      let lastResult = null;
+      // Find current streak (W/D/L) from most recent backwards
+      for (let i = games.length - 1; i >= 0; i--) {
+        const g = games[i];
+        const isHome = g.home === team;
+        const [homeScore, awayScore] = g.score.split(':').map(s => parseInt(s.trim(), 10));
+        let result = 'D';
+        if ((isHome && homeScore > awayScore) || (!isHome && awayScore > homeScore)) result = 'W';
+        else if ((isHome && homeScore < awayScore) || (!isHome && awayScore < homeScore)) result = 'L';
+        if (i === games.length - 1) lastResult = result;
+        if (streakType === null) streakType = result;
+        if (result === streakType) streakCount++;
+        else break;
+        if (result === 'L') unbeaten = false;
+      }
+      // Unbeaten streak (no losses)
+      unbeaten = games.every(g => {
+        const isHome = g.home === team;
+        const [homeScore, awayScore] = g.score.split(':').map(s => parseInt(s.trim(), 10));
+        return (isHome && homeScore >= awayScore) || (!isHome && awayScore >= homeScore);
+      });
+      // Build streak wording
+      let streakStr = '';
+      if (streakType === 'W' && streakCount > 1) streakStr = `Won ${streakCount} in a row`;
+      else if (streakType === 'W') streakStr = `Won last game`;
+      else if (streakType === 'D' && streakCount > 1) streakStr = `Drawn ${streakCount} in a row`;
+      else if (streakType === 'D') streakStr = `Drew last game`;
+      else if (streakType === 'L' && streakCount > 1) streakStr = `Lost ${streakCount} in a row`;
+      else if (streakType === 'L') streakStr = `Lost last game`;
+      if (unbeaten && games.length > 1) streakStr += (streakStr ? '; ' : '') + `Unbeaten in ${games.length}`;
+      teamStats[team].streak = streakStr;
+      teamStats[team].unbeaten = unbeaten;
+    });
+    // Build highlight lines, using sports-site style
+    return standings.map(row => {
+      const t = teamStats[row.team];
+      let line = `${row.team}: ${row.w}W-${row.d}D-${row.l}L`;
+      if (t.streak) line += ` (${t.streak})`;
+      return line;
+    });
+  }
+
+  const dynamicHighlights = getDynamicHighlights(standings, results);
 
   return (
     <div className="main-layout">
@@ -61,26 +183,54 @@ function App() {
         <main className="main-content">
           {page === 'home' && (
             <>
-              <h2 className="section-title">Latest Results</h2>
-              <div className="event-list">
-                {results.slice(0, 2).map((event, idx) => {
-                  // Determine winner for bolding
-                  const [homeScore, awayScore] = event.score.split(':').map(s => parseInt(s.trim(), 10));
-                  return (
-                    <div className="event-card" key={idx}>
-                      <div className="event-header">
-                        <span className="event-league">{event.league}</span>
-                        <span className="event-date">{event.date}</span>
-                      </div>
-                      <div className="event-teams">
-                        <span className="team" style={{ fontWeight: homeScore > awayScore ? 'bold' : 'normal' }}>{event.home}</span>
-                        <span className="score">{event.score}</span>
-                        <span className="team" style={{ fontWeight: awayScore > homeScore ? 'bold' : 'normal' }}>{event.away}</span>
-                      </div>
+          <h2 className="section-title">Latest Results</h2>
+          <div className="event-list">
+            {/* Find the matchday closest to today (not in the future) */}
+            {(() => {
+              if (!results.length || !matchdays.length) return null;
+              // Only league games, unique
+              const leagueResults = results.filter(r => r.league === 'League Game');
+              const uniqueGames = leagueResults.filter((event, idx, arr2) =>
+                arr2.findIndex(e =>
+                  e.home === event.home &&
+                  e.away === event.away &&
+                  e.date === event.date &&
+                  e.league === event.league
+                ) === idx
+              );
+              // Find the latest matchday (not in the future)
+              const today = new Date();
+              // Parse matchday end dates
+              const matchdaysWithParsed = matchdays.map(md => ({
+                ...md,
+                end: new Date(md.endDate.split('.').reverse().join('-'))
+              }));
+              // Find the matchday with the latest end date <= today
+              const latestMatchday = matchdaysWithParsed
+                .filter(md => md.end <= today)
+                .sort((a, b) => b.end - a.end)[0];
+              if (!latestMatchday) return <div className="no-games-message">No results yet.</div>;
+              // Get results for that matchday
+              const latestResults = uniqueGames.filter(r => r.matchdayId === latestMatchday.id);
+              if (!latestResults.length) return <div className="no-games-message">No results for latest matchday.</div>;
+              return latestResults.map((event, idx) => {
+                const [homeScore, awayScore] = event.score.split(':').map(s => parseInt(s.trim(), 10));
+                return (
+                  <div className="event-card" key={idx}>
+                    <div className="event-header">
+                      <span className="event-league">{event.league}</span>
+                      <span className="event-date">{event.date}</span>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="event-teams">
+                      <span className="team" style={{ fontWeight: homeScore > awayScore ? 'bold' : 'normal' }}>{event.home}</span>
+                      <span className="score">{event.score}</span>
+                      <span className="team" style={{ fontWeight: awayScore > homeScore ? 'bold' : 'normal' }}>{event.away}</span>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
               <h2 className="section-title section-title-standings">Standings</h2>
               <div className="standings-table-wrapper">
                 <table className="standings-table">
@@ -116,15 +266,15 @@ function App() {
               </div>
             </>
           )}
-          {page === 'results' && <ResultsScroller results={results} />}
+          {page === 'results' && <ResultsByMatchday results={results} matchdays={matchdays} />}
           {page === 'schedule' && <SchedulePage schedule={schedule} />}
         </main>
         <aside className="sidebar">
           <h3>Highlights</h3>
           <ul>
-            <li>Paul unbeaten in 4 games</li>
-            <li>Max strong at home</li>
-            <li>Johan: 3 draws in 4 matches</li>
+            {dynamicHighlights.map(line => (
+              <li key={line}>{line}</li>
+            ))}
           </ul>
         </aside>
       </div>
@@ -162,81 +312,204 @@ function SchedulePage({ schedule }) {
   );
 }
 
-function ResultsScroller({ results }) {
-  const [selectedTeam, setSelectedTeam] = useState(Array.from(new Set(results.flatMap(r => [r.home, r.away])))[0]);
-  const teams = Array.from(new Set(results.flatMap(r => [r.home, r.away])));
-  // Add mock matchday data to each result
-  const resultsWithMatchday = results.map((r, i) => ({ ...r, matchday: i + 1 }));
-  const teamGames = resultsWithMatchday.filter(r => r.home === selectedTeam || r.away === selectedTeam);
-  const [gameIdx, setGameIdx] = useState(0);
 
-  // Reset gameIdx if team changes
-  useEffect(() => { setGameIdx(0); }, [selectedTeam]);
 
-  const currentGame = teamGames[gameIdx];
+
+// Results by matchday with selector table and single matchday view, plus team filter below
+function ResultsByMatchday({ results, matchdays }) {
+  const filteredMatchdays = matchdays.filter(md => md && typeof md.startDate === 'string');
+  const sortedMatchdays = [...filteredMatchdays].sort((a, b) => a.startDate.localeCompare(b.startDate));
+  const [selectedIdx, setSelectedIdx] = React.useState(0);
+  const selectedMatchday = sortedMatchdays[selectedIdx] || null;
+
+  // Group results by matchdayId and sort by date within each matchday
+  const grouped = {};
+  results.forEach(r => {
+    if (!grouped[r.matchdayId]) grouped[r.matchdayId] = [];
+    grouped[r.matchdayId].push(r);
+  });
+  Object.values(grouped).forEach(arr => arr.sort((a, b) => (a.date || '').localeCompare(b.date || '')));
+
+  // Only show each game once (filter out duplicates by home/away/date/league)
+  function uniqueGames(arr) {
+    return arr.filter((event, idx, arr2) =>
+      arr2.findIndex(e =>
+        e.home === event.home &&
+        e.away === event.away &&
+        e.date === event.date &&
+        e.league === event.league
+      ) === idx
+    );
+  }
+
+  // Navigation handlers
+  const prevMatchday = () => setSelectedIdx(idx => Math.max(0, idx - 1));
+  const nextMatchday = () => setSelectedIdx(idx => Math.min(sortedMatchdays.length - 1, idx + 1));
+
+  // --- Team filter state and logic ---
+  // Get all unique teams from results
+  const allTeams = Array.from(new Set(results.flatMap(r => [r.home, r.away])));
+  const [selectedTeam, setSelectedTeam] = React.useState(allTeams[0] || '');
+
+  // All results for selected team, grouped by matchday
+  const teamResultsByMatchday = sortedMatchdays.map(md => {
+    const games = uniqueGames((grouped[md.id] || []).filter(r => r.home === selectedTeam || r.away === selectedTeam));
+    return { matchday: md, games };
+  });
 
   return (
     <>
-      <h2 className="section-title">Results by Team</h2>
-      <div className="team-selector-wrapper">
-        {teams.map(team => (
-          <button
-            key={team}
-            className={`team-selector-button ${team === selectedTeam ? 'active' : ''}`}
-            onClick={() => setSelectedTeam(team)}
-          >
-            {team}
-          </button>
-        ))}
+      <h2 className="section-title">Results by Matchday</h2>
+      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', width: '100%' }}>
+        {/* Matchday selector table */}
+        <table style={{ minWidth: 160, borderCollapse: 'collapse', background: 'var(--bg-color-offset)', borderRadius: 8 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '0.5rem 1rem', fontWeight: 700, fontSize: '1.08rem', borderBottom: '1px solid var(--primary-accent-color)', letterSpacing: '0.5px' }}>Matchdays</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedMatchdays.map((md, idx) => (
+              <tr key={md.id} style={{ background: idx === selectedIdx ? 'var(--primary-accent-color)' : 'inherit', cursor: 'pointer' }} onClick={() => setSelectedIdx(idx)}>
+                <td style={{ padding: '0.5rem 1rem', color: idx === selectedIdx ? 'var(--bg-color)' : 'var(--text-color)', fontWeight: idx === selectedIdx ? 700 : 400 }}>
+                  {md.name}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {/* Single matchday box */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {selectedMatchday && (
+            <div className="matchday-block" key={selectedMatchday.id}>
+              <div className="matchday-block-header" style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                background: 'linear-gradient(90deg, var(--primary-accent-color) 0%, var(--secondary-accent-color) 100%)',
+                color: 'var(--bg-color)',
+                borderRadius: '10px 10px 0 0',
+                padding: '1.2rem 0 0.8rem 0',
+                marginBottom: '1.2rem',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
+              }}>
+                <span style={{ fontSize: '1.35rem', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '0.2rem' }}>{selectedMatchday.name}</span>
+                <span style={{
+                  fontSize: '1.05rem',
+                  fontWeight: 500,
+                  background: 'rgba(255,255,255,0.13)',
+                  borderRadius: 6,
+                  padding: '0.2rem 0.9rem',
+                  marginTop: '0.1rem',
+                  color: 'var(--bg-color)',
+                  letterSpacing: '0.2px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+                }}>
+                  {selectedMatchday.startDate === selectedMatchday.endDate
+                    ? selectedMatchday.startDate
+                    : `${selectedMatchday.startDate} – ${selectedMatchday.endDate}`}
+                </span>
+              </div>
+              <div className="event-list">
+                {uniqueGames(grouped[selectedMatchday.id] || []).length === 0 ? (
+                  <div className="no-games-message">No results for this matchday.</div>
+                ) : (
+                  uniqueGames(grouped[selectedMatchday.id] || []).map((event, idx) => {
+                    const [homeScore, awayScore] = event.score.split(':').map(s => parseInt(s.trim(), 10));
+                    return (
+                      <div className="event-card" key={idx}>
+                        <div className="event-header">
+                          <span className="event-league">{event.league}</span>
+                          <span className="event-date">{event.date}</span>
+                        </div>
+                        <div className="event-teams">
+                          <span className="team" style={{ fontWeight: homeScore > awayScore ? 'bold' : 'normal' }}>{event.home}</span>
+                          <span className="score">{event.score}</span>
+                          <span className="team" style={{ fontWeight: awayScore > homeScore ? 'bold' : 'normal' }}>{event.away}</span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
+                <button className="matchday-nav-button prev" onClick={prevMatchday} disabled={selectedIdx === 0}>
+                  <span className="arrow">←</span> Previous
+                </button>
+                <span className="matchday-counter">{selectedIdx + 1} / {sortedMatchdays.length}</span>
+                <button className="matchday-nav-button next" onClick={nextMatchday} disabled={selectedIdx === sortedMatchdays.length - 1}>
+                  Next <span className="arrow">→</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-      {teamGames.length === 0 ? (
-        <div className="no-games-message">No games found for {selectedTeam}.</div>
-      ) : (
-        <div className="matchday-scroller-wrapper">
-          <div className="matchday-card">
-            <div className="matchday-header">
-              <div className="matchday-number">Matchday {currentGame.matchday}</div>
-              <div className="matchday-date">{currentGame.date}</div>
-              <div className="matchday-team-name">{selectedTeam}</div>
+
+      {/* --- Team filter section --- */}
+      <h2 className="section-title" style={{ marginTop: '2.5rem' }}>Results by Team</h2>
+      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', width: '100%' }}>
+        {/* Team selector table */}
+        <table style={{ minWidth: 160, borderCollapse: 'collapse', background: 'var(--bg-color-offset)', borderRadius: 8 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '0.5rem 1rem', fontWeight: 700, fontSize: '1.08rem', borderBottom: '1px solid var(--primary-accent-color)', letterSpacing: '0.5px' }}>Teams</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allTeams.map((team, idx) => (
+              <tr key={team} style={{ background: team === selectedTeam ? 'var(--primary-accent-color)' : 'inherit', cursor: 'pointer' }} onClick={() => setSelectedTeam(team)}>
+                <td style={{ padding: '0.5rem 1rem', color: team === selectedTeam ? 'var(--bg-color)' : 'var(--text-color)', fontWeight: team === selectedTeam ? 700 : 400 }}>
+                  {team}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {/* All matchdays for selected team */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="matchday-block" style={{ marginBottom: 0 }}>
+            <div className="matchday-block-header" style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              background: 'linear-gradient(90deg, var(--primary-accent-color) 0%, var(--secondary-accent-color) 100%)',
+              color: 'var(--bg-color)',
+              borderRadius: '10px 10px 0 0',
+              padding: '1.2rem 0 0.8rem 0',
+              marginBottom: '1.2rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
+            }}>
+              <span style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '0.2rem' }}>All Results for <span style={{ color: '#ffe066', textShadow: '0 1px 4px rgba(0,0,0,0.13)' }}>{selectedTeam}</span></span>
             </div>
-            <div className="event-card matchday-event-card">
-              <div className="event-header">
-                <span className="event-league">{currentGame.league}</span>
-              </div>
-              <div className="event-teams">
-                {/* Bold the winning team */}
-                {(() => {
-                  const [homeScore, awayScore] = currentGame.score.split(':').map(s => parseInt(s.trim(), 10));
-                  return (
-                    <>
-                      <span className="team" style={{ fontWeight: homeScore > awayScore ? 'bold' : 'normal' }}>{currentGame.home}</span>
-                      <span className="score">{currentGame.score}</span>
-                      <span className="team" style={{ fontWeight: awayScore > homeScore ? 'bold' : 'normal' }}>{currentGame.away}</span>
-                    </>
-                  );
-                })()}
-              </div>
-            </div>
-            <div className="matchday-navigation">
-              <button
-                className="matchday-nav-button prev"
-                onClick={() => setGameIdx(idx => Math.max(0, idx - 1))}
-                disabled={gameIdx === 0}
-              >
-                <span className="arrow">←</span> Previous
-              </button>
-              <span className="matchday-counter">{gameIdx + 1} / {teamGames.length}</span>
-              <button
-                className="matchday-nav-button next"
-                onClick={() => setGameIdx(idx => Math.min(teamGames.length - 1, idx + 1))}
-                disabled={gameIdx === teamGames.length - 1}
-              >
-                Next <span className="arrow">→</span>
-              </button>
+            <div className="event-list">
+              {teamResultsByMatchday.every(md => md.games.length === 0) ? (
+                <div className="no-games-message">No results for {selectedTeam}.</div>
+              ) : (
+                teamResultsByMatchday.map(({ matchday, games }) => (
+                  games.length === 0 ? null : (
+                    <div key={matchday.id} style={{ marginBottom: '1.2rem' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--primary-accent-color)', marginBottom: '0.3rem' }}>{matchday.name} <span style={{ fontWeight: 400, color: 'var(--text-color)', fontSize: '0.98em' }}>({matchday.startDate === matchday.endDate ? matchday.startDate : `${matchday.startDate} – ${matchday.endDate}`})</span></div>
+                      {games.map((event, idx) => {
+                        const [homeScore, awayScore] = event.score.split(':').map(s => parseInt(s.trim(), 10));
+                        return (
+                          <div className="event-card" key={idx} style={{ background: 'var(--bg-color)', border: '1px solid var(--primary-accent-color)', marginBottom: '0.5rem' }}>
+                            <div className="event-header">
+                              <span className="event-league">{event.league}</span>
+                              <span className="event-date">{event.date}</span>
+                            </div>
+                            <div className="event-teams">
+                              <span className="team" style={{ fontWeight: event.home === selectedTeam && homeScore >= awayScore ? 'bold' : 'normal', color: event.home === selectedTeam ? '#ffe066' : undefined }}>{event.home}</span>
+                              <span className="score">{event.score}</span>
+                              <span className="team" style={{ fontWeight: event.away === selectedTeam && awayScore >= homeScore ? 'bold' : 'normal', color: event.away === selectedTeam ? '#ffe066' : undefined }}>{event.away}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )
+                ))
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }
