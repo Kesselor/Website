@@ -1,7 +1,10 @@
 /* General App Styling */
 html, #root, .main-layout { /* body is styled in index.css, header has its own box-sizing */
-  box-sizing: border-box;
-}
+box-sizing: border-box;
+width: 100%;
+max-width: 1200px;
+margin: 0 auto;
+/* Remove stray closing brace from previous bad paste or merge */
 
 body { /* Styles from index.css will apply: font-family, bg-color, color */
   margin: 0; /* Already in index.css, but ensure it's not overridden */
@@ -37,7 +40,9 @@ body { /* Styles from index.css will apply: font-family, bg-color, color */
   position: sticky; /* Sticky header */
   top: 0;
   z-index: 1000; /* Ensure header is above other content */
-  width: 100%; /* Ensure sticky header spans full width */
+  width: 100%; /* Match main content width */
+  max-width: 1200px; /* Match .content-wrapper max-width */
+  margin: 0 auto; /* Center header */
   box-sizing: border-box; /* Add box-sizing */
 }
 
@@ -610,6 +615,7 @@ html {
     justify-content: space-between;
     align-items: center;
     position: sticky; /* Ensure it remains sticky if it was before */
+  left: 0; /* Ensure header is always aligned to the left edge */
   }
 }
 ```
