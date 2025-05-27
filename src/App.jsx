@@ -1,11 +1,21 @@
 
 
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-  const [page, setPage] = React.useState('home');
+  const [page, setPage] = useState('home');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // Close mobile menu on page change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [page]);
 
   // Mock data
   const results = [
@@ -35,14 +45,19 @@ function App() {
   return (
     <div className="main-layout">
       <header className="header">
-        <div className="logo-title">
-          <span className="site-title">Sports Event Tracker</span>
+        <div className="header-content-container">
+          <div className="logo-title">
+            <span className="site-title">Sports Event Tracker</span>
+          </div>
+          <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+            {isMobileMenuOpen ? '✕' : '☰'}
+          </button>
+          <nav className={`nav-bar ${isMobileMenuOpen ? 'mobile-active' : ''}`}>
+            <a href="#" className={`nav-link${page === 'home' ? ' active' : ''}`} onClick={() => setPage('home')}>Home</a>
+            <a href="#" className={`nav-link${page === 'results' ? ' active' : ''}`} onClick={() => setPage('results')}>Results</a>
+            <a href="#" className={`nav-link${page === 'schedule' ? ' active' : ''}`} onClick={() => setPage('schedule')}>Schedule</a>
+          </nav>
         </div>
-        <nav className="nav-bar">
-          <a href="#" className={`nav-link${page === 'home' ? ' active' : ''}`} onClick={() => setPage('home')}>Home</a>
-          <a href="#" className={`nav-link${page === 'results' ? ' active' : ''}`} onClick={() => setPage('results')}>Results</a>
-          <a href="#" className={`nav-link${page === 'schedule' ? ' active' : ''}`} onClick={() => setPage('schedule')}>Schedule</a>
-        </nav>
       </header>
       <div className="content-wrapper">
         <main className="main-content">
@@ -68,7 +83,7 @@ function App() {
                   );
                 })}
               </div>
-              <h2 className="section-title" style={{ marginTop: '2.5rem' }}>Standings</h2>
+              <h2 className="section-title section-title-standings">Standings</h2>
               <div className="standings-table-wrapper">
                 <table className="standings-table">
                   <thead>
@@ -126,8 +141,8 @@ function SchedulePage({ schedule }) {
   return (
     <>
       <h2 className="section-title">Upcoming Schedule</h2>
-      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-        <div style={{ width: '100%', maxWidth: 500, minWidth: 320 }}>
+      <div className="schedule-list-wrapper">
+        <div className="schedule-list-container">
           <div className="event-list">
             {schedule.slice(0, 5).map((event, idx) => (
               <div className="event-card" key={idx}>
@@ -150,62 +165,43 @@ function SchedulePage({ schedule }) {
 }
 
 function ResultsScroller({ results }) {
-  const [selectedTeam, setSelectedTeam] = React.useState(Array.from(new Set(results.flatMap(r => [r.home, r.away])))[0]);
+  const [selectedTeam, setSelectedTeam] = useState(Array.from(new Set(results.flatMap(r => [r.home, r.away])))[0]);
   const teams = Array.from(new Set(results.flatMap(r => [r.home, r.away])));
   // Add mock matchday data to each result
   const resultsWithMatchday = results.map((r, i) => ({ ...r, matchday: i + 1 }));
   const teamGames = resultsWithMatchday.filter(r => r.home === selectedTeam || r.away === selectedTeam);
-  const [gameIdx, setGameIdx] = React.useState(0);
+  const [gameIdx, setGameIdx] = useState(0);
 
   // Reset gameIdx if team changes
-  React.useEffect(() => { setGameIdx(0); }, [selectedTeam]);
+  useEffect(() => { setGameIdx(0); }, [selectedTeam]);
 
   const currentGame = teamGames[gameIdx];
 
   return (
     <>
       <h2 className="section-title">Results by Team</h2>
-      {/* Team selection horizontal row */}
-      <div style={{ marginBottom: 0, display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 12, width: '100%' }}>
+      <div className="team-selector-wrapper">
         {teams.map(team => (
           <button
             key={team}
-            className={team === selectedTeam ? 'nav-link active' : 'nav-link'}
-            style={{
-              minWidth: 120,
-              margin: 0,
-              cursor: 'pointer',
-              display: 'block',
-              fontWeight: team === selectedTeam ? 'bold' : 'normal',
-              border: team === selectedTeam ? '2px solid #0074D9' : '1px solid #ccc',
-              background: team === selectedTeam ? '#e6f0fa' : '#fff',
-              color: '#222',
-              borderRadius: 6,
-              padding: '0.4rem 1rem',
-              boxShadow: team === selectedTeam ? '0 2px 8px #0074d933' : 'none',
-              fontSize: 18,
-              transition: 'background 0.2s, border 0.2s',
-              whiteSpace: 'nowrap',
-            }}
+            className={`team-selector-button ${team === selectedTeam ? 'active' : ''}`}
             onClick={() => setSelectedTeam(team)}
           >
             {team}
           </button>
         ))}
       </div>
-      {/* Centered Matchday box below team selection */}
       {teamGames.length === 0 ? (
-        <div style={{ marginTop: '1.5rem' }}>No games found for {selectedTeam}.</div>
+        <div className="no-games-message">No games found for {selectedTeam}.</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-          <div style={{ width: '100%', maxWidth: 500, minWidth: 320, background: '#fff', border: '2px solid #0074D9', borderRadius: 12, boxShadow: '0 2px 12px #0074d922', margin: '1.5rem 0 16px 0', padding: '1.5rem 1.5rem 1rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
-            {/* Header with matchday, date, and team name */}
-            <div style={{ marginBottom: 16, borderBottom: '1px solid #e0e0e0', paddingBottom: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 2 }}>Matchday {currentGame.matchday}</div>
-              <div style={{ fontSize: 16, color: '#0074D9', marginBottom: 2 }}>{currentGame.date}</div>
-              <div style={{ fontSize: 18, fontWeight: 600, color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 400 }}>{selectedTeam}</div>
+        <div className="matchday-scroller-wrapper">
+          <div className="matchday-card">
+            <div className="matchday-header">
+              <div className="matchday-number">Matchday {currentGame.matchday}</div>
+              <div className="matchday-date">{currentGame.date}</div>
+              <div className="matchday-team-name">{selectedTeam}</div>
             </div>
-            <div className="event-card" style={{ marginBottom: 16, minHeight: 70, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div className="event-card matchday-event-card">
               <div className="event-header">
                 <span className="event-league">{currentGame.league}</span>
               </div>
@@ -223,23 +219,21 @@ function ResultsScroller({ results }) {
                 })()}
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+            <div className="matchday-navigation">
               <button
-                className="nav-link"
-                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 'bold', border: '2px solid #0074D9', background: '#e6f0fa', color: '#0074D9', borderRadius: 6, padding: '0.3rem 1rem', opacity: gameIdx === 0 ? 0.5 : 1, transition: 'background 0.2s, border 0.2s' }}
+                className="matchday-nav-button prev"
                 onClick={() => setGameIdx(idx => Math.max(0, idx - 1))}
                 disabled={gameIdx === 0}
               >
-                <span style={{ fontSize: 18, marginRight: 6 }}>←</span> Previous
+                <span className="arrow">←</span> Previous
               </button>
-              <span style={{ alignSelf: 'center' }}>{gameIdx + 1} / {teamGames.length}</span>
+              <span className="matchday-counter">{gameIdx + 1} / {teamGames.length}</span>
               <button
-                className="nav-link"
-                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 'bold', border: '2px solid #0074D9', background: '#e6f0fa', color: '#0074D9', borderRadius: 6, padding: '0.3rem 1rem', opacity: gameIdx === teamGames.length - 1 ? 0.5 : 1, transition: 'background 0.2s, border 0.2s' }}
+                className="matchday-nav-button next"
                 onClick={() => setGameIdx(idx => Math.min(teamGames.length - 1, idx + 1))}
                 disabled={gameIdx === teamGames.length - 1}
               >
-                Next <span style={{ fontSize: 18, marginLeft: 6 }}>→</span>
+                Next <span className="arrow">→</span>
               </button>
             </div>
           </div>
