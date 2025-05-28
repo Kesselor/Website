@@ -3,14 +3,14 @@
   line-height: 1.5;
   font-weight: 400;
 
-  /* Dark mode by default */
+  color-scheme: light dark; /* Let browser know supported schemes */
+  /* Default to dark theme if no data-theme is set or if data-theme is "dark" */
   --bg-color: #1a202c;
   --text-color: #e2e8f0;
   --primary-accent-color: #3b82f6;
   --secondary-accent-color: #60a5fa;
-  --bg-color-offset: #2c3440; /* Slightly lighter for dark mode cards/elements */
+  --bg-color-offset: #2c3440;
 
-  color-scheme: light dark;
   color: var(--text-color);
   background-color: var(--bg-color);
 
@@ -20,14 +20,20 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-color: #ffffff;
-    --text-color: #1a202c;
-    --primary-accent-color: #2563eb;
-    --secondary-accent-color: #1d4ed8;
-    --bg-color-offset: #f7fafc; /* Very light gray for light mode cards/elements */
-  }
+html[data-theme="light"] {
+  --bg-color: #FFFFFF; /* white */
+  --text-color: #212529; /* a common dark gray/black for text */
+  --primary-accent-color: #FF0000; /* red */
+  --secondary-accent-color: #CC0000; /* darker red */
+  --bg-color-offset: #F5F5F5; /* light gray */
+}
+
+html[data-theme="dark"] {
+  --bg-color: #1a202c;
+  --text-color: #e2e8f0;
+  --primary-accent-color: #3b82f6; /* Original dark mode primary accent */
+  --secondary-accent-color: #60a5fa; /* Original dark mode secondary accent */
+  --bg-color-offset: #2c3440; /* Slightly lighter for dark mode cards/elements */
 }
 
 a {

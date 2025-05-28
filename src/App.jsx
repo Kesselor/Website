@@ -9,6 +9,26 @@ import { db, initializeMockData } from './db';
 function App() {
   const [page, setPage] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+      return storedTheme;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    return 'light';
+  });
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -177,6 +197,9 @@ function App() {
           <a href="#" className={`nav-link${page === 'home' ? ' active' : ''}`} onClick={() => setPage('home')}>Home</a>
           <a href="#" className={`nav-link${page === 'results' ? ' active' : ''}`} onClick={() => setPage('results')}>Results</a>
           <a href="#" className={`nav-link${page === 'schedule' ? ' active' : ''}`} onClick={() => setPage('schedule')}>Schedule</a>
+          <button onClick={toggleTheme} className="theme-toggle-button">
+            {theme === 'light' ? 'Switch to Dark Mode 🌙' : 'Switch to Light Mode ☀️'}
+          </button>
         </nav>
       </header>
       <div className="content-wrapper">
@@ -222,9 +245,9 @@ function App() {
                       <span className="event-date">{event.date}</span>
                     </div>
                     <div className="event-teams">
-                      <span className="team" style={{ fontWeight: homeScore > awayScore ? 'bold' : 'normal' }}>{event.home}</span>
+                      <span className={homeScore > awayScore ? 'team font-bold' : 'team'}>{event.home}</span>
                       <span className="score">{event.score}</span>
-                      <span className="team" style={{ fontWeight: awayScore > homeScore ? 'bold' : 'normal' }}>{event.away}</span>
+                      <span className={awayScore > homeScore ? 'team font-bold' : 'team'}>{event.away}</span>
                     </div>
                   </div>
                 );
@@ -360,18 +383,18 @@ function ResultsByMatchday({ results, matchdays }) {
   return (
     <>
       <h2 className="section-title">Results by Matchday</h2>
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', width: '100%' }}>
+      <div className="results-by-matchday-layout">
         {/* Matchday selector table */}
-        <table style={{ minWidth: 160, borderCollapse: 'collapse', background: 'var(--bg-color-offset)', borderRadius: 8 }}>
+        <table className="results-selector-table">
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '0.5rem 1rem', fontWeight: 700, fontSize: '1.08rem', borderBottom: '1px solid var(--primary-accent-color)', letterSpacing: '0.5px' }}>Matchdays</th>
+              <th className="results-selector-header">Matchdays</th>
             </tr>
           </thead>
           <tbody>
             {sortedMatchdays.map((md, idx) => (
-              <tr key={md.id} style={{ background: idx === selectedIdx ? 'var(--primary-accent-color)' : 'inherit', cursor: 'pointer' }} onClick={() => setSelectedIdx(idx)}>
-                <td style={{ padding: '0.5rem 1rem', color: idx === selectedIdx ? 'var(--bg-color)' : 'var(--text-color)', fontWeight: idx === selectedIdx ? 700 : 400 }}>
+              <tr key={md.id} className={`results-selector-row ${idx === selectedIdx ? 'active' : ''}`} onClick={() => setSelectedIdx(idx)}>
+                <td className={`results-selector-cell ${idx === selectedIdx ? 'active' : ''}`}>
                   {md.name}
                 </td>
               </tr>
@@ -379,30 +402,12 @@ function ResultsByMatchday({ results, matchdays }) {
           </tbody>
         </table>
         {/* Single matchday box */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="results-display-area">
           {selectedMatchday && (
             <div className="matchday-block" key={selectedMatchday.id}>
-              <div className="matchday-block-header" style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                background: 'linear-gradient(90deg, var(--primary-accent-color) 0%, var(--secondary-accent-color) 100%)',
-                color: 'var(--bg-color)',
-                borderRadius: '10px 10px 0 0',
-                padding: '1.2rem 0 0.8rem 0',
-                marginBottom: '1.2rem',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
-              }}>
-                <span style={{ fontSize: '1.35rem', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '0.2rem' }}>{selectedMatchday.name}</span>
-                <span style={{
-                  fontSize: '1.05rem',
-                  fontWeight: 500,
-                  background: 'rgba(255,255,255,0.13)',
-                  borderRadius: 6,
-                  padding: '0.2rem 0.9rem',
-                  marginTop: '0.1rem',
-                  color: 'var(--bg-color)',
-                  letterSpacing: '0.2px',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
-                }}>
+              <div className="results-block-title-header">
+                <span className="results-block-title-name">{selectedMatchday.name}</span>
+                <span className="results-block-title-meta">
                   {selectedMatchday.startDate === selectedMatchday.endDate
                     ? selectedMatchday.startDate
                     : `${selectedMatchday.startDate} – ${selectedMatchday.endDate}`}
@@ -421,16 +426,16 @@ function ResultsByMatchday({ results, matchdays }) {
                           <span className="event-date">{event.date}</span>
                         </div>
                         <div className="event-teams">
-                          <span className="team" style={{ fontWeight: homeScore > awayScore ? 'bold' : 'normal' }}>{event.home}</span>
+                          <span className={homeScore > awayScore ? 'team font-bold' : 'team'}>{event.home}</span>
                           <span className="score">{event.score}</span>
-                          <span className="team" style={{ fontWeight: awayScore > homeScore ? 'bold' : 'normal' }}>{event.away}</span>
+                          <span className={awayScore > homeScore ? 'team font-bold' : 'team'}>{event.away}</span>
                         </div>
                       </div>
                     );
                   })
                 )}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
+              <div className="results-navigation-controls">
                 <button className="matchday-nav-button prev" onClick={prevMatchday} disabled={selectedIdx === 0}>
                   <span className="arrow">←</span> Previous
                 </button>
@@ -445,19 +450,19 @@ function ResultsByMatchday({ results, matchdays }) {
       </div>
 
       {/* --- Team filter section --- */}
-      <h2 className="section-title" style={{ marginTop: '2.5rem' }}>Results by Team</h2>
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', width: '100%' }}>
+      <h2 className="section-title section-title-spacing-top">Results by Team</h2>
+      <div className="results-by-matchday-layout"> {/* Reusing layout class */}
         {/* Team selector table */}
-        <table style={{ minWidth: 160, borderCollapse: 'collapse', background: 'var(--bg-color-offset)', borderRadius: 8 }}>
+        <table className="results-selector-table">
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '0.5rem 1rem', fontWeight: 700, fontSize: '1.08rem', borderBottom: '1px solid var(--primary-accent-color)', letterSpacing: '0.5px' }}>Teams</th>
+              <th className="results-selector-header">Teams</th>
             </tr>
           </thead>
           <tbody>
-            {allTeams.map((team, idx) => (
-              <tr key={team} style={{ background: team === selectedTeam ? 'var(--primary-accent-color)' : 'inherit', cursor: 'pointer' }} onClick={() => setSelectedTeam(team)}>
-                <td style={{ padding: '0.5rem 1rem', color: team === selectedTeam ? 'var(--bg-color)' : 'var(--text-color)', fontWeight: team === selectedTeam ? 700 : 400 }}>
+            {allTeams.map((team) => (
+              <tr key={team} className={`results-selector-row ${team === selectedTeam ? 'active' : ''}`} onClick={() => setSelectedTeam(team)}>
+                <td className={`results-selector-cell ${team === selectedTeam ? 'active' : ''}`}>
                   {team}
                 </td>
               </tr>
@@ -465,18 +470,10 @@ function ResultsByMatchday({ results, matchdays }) {
           </tbody>
         </table>
         {/* All matchdays for selected team */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="matchday-block" style={{ marginBottom: 0 }}>
-            <div className="matchday-block-header" style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              background: 'linear-gradient(90deg, var(--primary-accent-color) 0%, var(--secondary-accent-color) 100%)',
-              color: 'var(--bg-color)',
-              borderRadius: '10px 10px 0 0',
-              padding: '1.2rem 0 0.8rem 0',
-              marginBottom: '1.2rem',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
-            }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '0.2rem' }}>All Results for <span style={{ color: '#ffe066', textShadow: '0 1px 4px rgba(0,0,0,0.13)' }}>{selectedTeam}</span></span>
+        <div className="results-display-area"> {/* Reusing layout class */}
+          <div className="matchday-block team-results-matchday-block">
+            <div className="results-block-title-header">
+              <span className="results-block-title-name">All Results for <span className="highlight-team-name-header">{selectedTeam}</span></span>
             </div>
             <div className="event-list">
               {teamResultsByMatchday.every(md => md.games.length === 0) ? (
