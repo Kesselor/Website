@@ -1,90 +1,120 @@
 /* General App Styling */
-html, #root, .main-layout { /* body is styled in index.css, header has its own box-sizing */
+:root {
+  --highlight-text-color: #ffe066; /* Yellowish highlight */
+  --special-text-shadow: 0 1px 4px rgba(0,0,0,0.13);
+  --table-header-bg: rgba(255,255,255,0.13); /* For matchday block date bg */
+  --table-header-shadow: 0 1px 4px rgba(0,0,0,0.04); /* For matchday block date shadow */
+}
+
+html[data-theme="dark"] {
+  --highlight-text-color: #ffe066; /* Yellowish highlight can stay same or change */
+  --special-text-shadow: 0 1px 4px rgba(0,0,0,0.2); /* Slightly darker shadow for dark mode */
+  --table-header-bg: rgba(0,0,0,0.13); /* Darker bg for dark mode */
+  --table-header-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+
+html, #root, .main-layout {
 box-sizing: border-box;
 width: 100%;
 max-width: 1200px;
 margin: 0 auto;
-/* Remove stray closing brace from previous bad paste or merge */
+}
 
-body { /* Styles from index.css will apply: font-family, bg-color, color */
-  margin: 0; /* Already in index.css, but ensure it's not overridden */
-  display: flex; /* Keep for centering content, can be reviewed */
+body {
+  margin: 0;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  /* font-family is inherited from index.css */
-  /* background-color: var(--bg-color); /* Set in index.css */
-  /* color: var(--text-color); /* Set in index.css */
 }
 
 .main-layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: 100%; /* Changed from 100vw to 100% for better compatibility */
-  max-width: 100vw; /* Keep for safety, though width: 100% on body/html should handle it */
+  width: 100%;
+  max-width: 100vw;
   margin: 0 auto;
-  background-color: var(--bg-color); /* Ensure layout background matches */
+  background-color: var(--bg-color);
 }
 
 /* Header & Navigation */
 .header {
   background: var(--primary-accent-color);
-  color: var(--bg-color); /* Using --bg-color for high contrast text on primary accent */
-  padding: 0.75rem 2rem; /* Adjusted padding */
+  color: var(--bg-color);
+  padding: 0.75rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06); /* Subtle shadow for depth */
-  min-height: 64px; /* Keep min-height */
-  /* Removed fixed height, border-bottom, position, z-index, width, max-width, margin for a simpler sticky header */
-  position: sticky; /* Sticky header */
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  min-height: 64px;
+  position: sticky;
   top: 0;
-  z-index: 1000; /* Ensure header is above other content */
-  width: 100%; /* Match main content width */
-  max-width: 1200px; /* Match .content-wrapper max-width */
-  margin: 0 auto; /* Center header */
-  box-sizing: border-box; /* Add box-sizing */
+  z-index: 1000;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .logo-title {
-  font-size: 1.75rem; /* Slightly reduced */
+  font-size: 1.75rem;
   font-weight: bold;
-  letter-spacing: 0.5px; /* Reduced letter-spacing */
+  letter-spacing: 0.5px;
 }
 
 .site-title {
-  color: var(--bg-color); /* Ensure high contrast */
+  color: var(--bg-color);
   text-decoration: none;
 }
 
 .nav-bar {
   display: flex;
+  align-items: center; /* Align theme button vertically */
   gap: 1.5rem;
 }
 
 .nav-link {
-  color: var(--bg-color); /* Ensure high contrast */
+  color: var(--bg-color);
   text-decoration: none;
   font-weight: 500;
-  padding-bottom: 4px; /* Increased padding for a larger click area */
-  border-bottom: 3px solid transparent; /* Thicker border for active/hover state */
-  transition: border-color 0.2s ease-in-out; /* Smoother transition */
+  padding-bottom: 4px;
+  border-bottom: 3px solid transparent;
+  transition: border-color 0.2s ease-in-out;
 }
 
 .nav-link.active,
 .nav-link:hover {
-  border-bottom-color: var(--secondary-accent-color); /* Use secondary accent for border */
-  /* color: var(--secondary-accent-color); /* Optionally change text color on hover too */
+  border-bottom-color: var(--secondary-accent-color);
 }
+
+/* Theme Toggle Button */
+.theme-toggle-button {
+  padding: 0.5rem 1rem;
+  margin-left: 1rem;
+  background-color: var(--secondary-accent-color);
+  color: var(--bg-color);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit; /* Ensure it uses the same font */
+  font-size: 0.9rem; /* Adjust as needed */
+  font-weight: 500;
+}
+
+.theme-toggle-button:hover {
+  opacity: 0.9;
+}
+
 
 /* Content Sections & Cards */
 .content-wrapper {
   display: flex;
   flex: 1;
-  max-width: 1200px; /* Increased max-width for modern layouts */
+  max-width: 1200px;
   width: 100%;
   margin: 2rem auto;
-  padding: 0 1rem; /* Add horizontal padding */
+  padding: 0 1rem;
   gap: 2rem;
   justify-content: center;
   align-items: flex-start;
@@ -93,15 +123,19 @@ body { /* Styles from index.css will apply: font-family, bg-color, color */
 
 .main-content {
   flex: 3;
-  min-width: 0; /* Important for flex items to shrink correctly */
+  min-width: 0;
 }
 
 .section-title {
-  font-size: 1.75rem; /* Adjusted size */
+  font-size: 1.75rem;
   margin-bottom: 1.5rem;
   color: var(--primary-accent-color);
   border-bottom: 2px solid var(--primary-accent-color);
   padding-bottom: 0.5rem;
+}
+
+.section-title-spacing-top {
+  margin-top: 2.5rem;
 }
 
 .event-list {
@@ -112,27 +146,27 @@ body { /* Styles from index.css will apply: font-family, bg-color, color */
 
 .event-card,
 .sidebar {
-  background-color: var(--bg-color-offset); /* Use offset for cards */
-  color: var(--text-color); /* Ensure text color contrasts with card background */
+  background-color: var(--bg-color-offset);
+  color: var(--text-color);
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* Modern subtle shadow */
-  padding: 1.5rem; /* Consistent padding */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
 }
 
-.sidebar { /* Specific sidebar adjustments if any, otherwise it inherits from .event-card like styles */
+.sidebar {
   flex: 1;
-  min-width: 250px; /* Adjusted min-width */
-  max-width: 320px; /* Adjusted max-width */
-  height: fit-content; /* Keep height fit-content */
+  min-width: 250px;
+  max-width: 320px;
+  height: fit-content;
 }
 
 
 .event-header {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem; /* Adjusted size */
-  color: var(--text-color); /* Ensure text color is appropriate */
-  opacity: 0.8; /* Slightly less prominent header text */
+  font-size: 0.9rem;
+  color: var(--text-color);
+  opacity: 0.8;
   margin-bottom: 0.5rem;
 }
 
@@ -140,7 +174,7 @@ body { /* Styles from index.css will apply: font-family, bg-color, color */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 1.15rem; /* Adjusted size */
+  font-size: 1.15rem;
   font-weight: 500;
 }
 
@@ -149,10 +183,14 @@ body { /* Styles from index.css will apply: font-family, bg-color, color */
   text-align: center;
 }
 
+.font-bold {
+  font-weight: bold;
+}
+
 .score {
   flex: 0.5;
   text-align: center;
-  font-size: 1.3rem; /* Adjusted size */
+  font-size: 1.3rem;
   color: var(--primary-accent-color);
   font-weight: bold;
 }
@@ -162,94 +200,63 @@ body { /* Styles from index.css will apply: font-family, bg-color, color */
   width: 100%;
   display: flex;
   justify-content: center;
-  margin: 2rem 0; /* Adjusted margin */
-  overflow-x: auto; /* Make table scrollable on small screens */
+  margin: 2rem 0;
+  overflow-x: auto;
 }
 
 .standings-table {
-  border-collapse: collapse; /* Keep collapse */
+  border-collapse: collapse;
   width: 100%;
-  max-width: 700px; /* Increased max-width */
-  background-color: var(--bg-color-offset); /* Table background */
-  color: var(--text-color); /* Table text color */
+  max-width: 700px;
+  background-color: var(--bg-color-offset);
+  color: var(--text-color);
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* Modern subtle shadow */
-  overflow: hidden; /* For border-radius */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .standings-table th,
 .standings-table td {
-  padding: 0.85rem 1.15rem; /* Adjusted padding */
-  text-align: left; /* Align text left for readability */
-  border-bottom: 1px solid var(--bg-color); /* Border for row separation */
+  padding: 0.85rem 1.15rem;
+  text-align: left;
+  border-bottom: 1px solid var(--bg-color); /* Default for light mode */
 }
+html[data-theme="dark"] .standings-table th,
+html[data-theme="dark"] .standings-table td {
+  border-bottom: 1px solid rgba(239, 246, 252, 0.1); /* Lighter border for dark mode */
+}
+
 .standings-table th:last-child,
 .standings-table td:last-child {
-  text-align: center; /* Center last column (e.g., points) */
+  text-align: center;
 }
 
 
 .standings-table th {
   background-color: var(--primary-accent-color);
-  color: var(--bg-color); /* High contrast for header text */
+  color: var(--bg-color);
   font-weight: 600;
-  font-size: 0.9rem; /* Adjusted font size */
-  text-transform: uppercase; /* Uppercase for table headers */
+  font-size: 0.9rem;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-
-/* Using border for separation, so explicit row backgrounds are not strictly needed for distinction */
-.standings-table tr:nth-child(even) {
-  background-color: var(--bg-color-offset); /* Keep it consistent with table background */
-}
-.standings-table tr:nth-child(odd) {
-  background-color: var(--bg-color-offset); /* Keep it consistent with table background */
-}
-
-/* Adding a slightly different background for even rows for subtle striping, if --bg-color-offset is used as base for table */
-/* This might require defining another variable or using rgba for subtle difference */
-/* For now, let's use a subtle effect on hover and rely on borders. */
 
 .standings-table tr:hover {
   background-color: rgba(0,0,0,0.03); /* Subtle hover for light mode */
 }
-
-@media (prefers-color-scheme: dark) {
-  .standings-table tr:hover {
-    background-color: rgba(255,255,255,0.04); /* Subtle hover for dark mode */
-  }
-  .standings-table th,
-  .standings-table td {
-     /* In dark mode, the border should be lighter than --bg-color.
-        Using text-color with alpha is a good option, or a lighter version of --bg-color-offset.
-        Let's try a subtle border using an alpha of text-color.
-     */
-     border-bottom: 1px solid rgba(239, 246, 252, 0.1); /* Example: Assuming --text-color is light (adjust actual value if needed) */
-  }
-   /* If --bg-color is very dark, border-bottom: 1px solid var(--bg-color) might not be visible.
-      A slightly lighter shade, or a transparent white, would be better.
-      Example: border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      The previous `border-bottom: 1px solid var(--text-color); opacity: 0.8;` was not ideal as opacity affects the whole element.
-      Let's adjust the general rule for border-bottom instead.
-   */
-}
-/* Re-adjusting general border for table rows to be more visible in dark mode */
-.standings-table th,
-.standings-table td {
-  /* This will be overridden by the dark mode specific rule if needed */
-  border-bottom: 1px solid var(--bg-color); /* Default for light mode (darker border on light bg) */
+html[data-theme="dark"] .standings-table tr:hover {
+  background-color: rgba(255,255,255,0.04); /* Subtle hover for dark mode */
 }
 
-
 .standings-table td {
-  font-size: 0.95rem; /* Adjusted font size */
+  font-size: 0.95rem;
 }
 
 /* Sidebar Specifics */
 .sidebar h3 {
   margin-top: 0;
   color: var(--primary-accent-color);
-  font-size: 1.25rem; /* Adjusted size */
+  font-size: 1.25rem;
   border-bottom: 1px solid var(--primary-accent-color);
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
@@ -257,74 +264,320 @@ body { /* Styles from index.css will apply: font-family, bg-color, color */
 
 /* Footer */
 .footer {
-  background: var(--text-color); /* Using text-color for footer background */
-  color: var(--bg-color); /* Using bg-color for footer text */
+  background: var(--text-color);
+  color: var(--bg-color);
   text-align: center;
-  padding: 1.5rem 0; /* Increased padding */
-  margin-top: auto; /* Pushes footer to bottom */
-  font-size: 0.9rem; /* Adjusted font size */
-  width: 100%; /* Ensure footer spans full width */
+  padding: 1.5rem 0;
+  margin-top: auto;
+  font-size: 0.9rem;
+  width: 100%;
   box-sizing: border-box;
 }
 
+/* Hamburger Menu Styles */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--bg-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-left: auto;
+}
+
+.no-games-message {
+  margin-top: 1.5rem;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.matchday-nav-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  border: 2px solid var(--primary-accent-color);
+  background: var(--primary-accent-color);
+  color: var(--bg-color);
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  transition: background 0.2s, opacity 0.2s;
+  font-size: 0.9rem;
+}
+
+.matchday-nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--secondary-accent-color);
+  border-color: var(--secondary-accent-color);
+}
+
+.matchday-nav-button .arrow {
+  font-size: 1.125rem;
+}
+.matchday-nav-button.prev .arrow {
+  margin-right: 0.375rem;
+}
+.matchday-nav-button.next .arrow {
+  margin-left: 0.375rem;
+}
+
+.matchday-counter {
+  align-self: center;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+/* Styles for ResultsByMatchday component */
+.results-by-matchday-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.results-selector-table {
+  min-width: 160px;
+  border-collapse: collapse;
+  background: var(--bg-color-offset);
+  border-radius: 8px;
+  align-self: flex-start; /* Prevent stretching if content is shorter */
+}
+
+.results-selector-header {
+  text-align: left;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 1.08rem;
+  border-bottom: 1px solid var(--primary-accent-color);
+  letter-spacing: 0.5px;
+  color: var(--primary-accent-color); /* Header text color */
+}
+
+.results-selector-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.results-selector-row.active {
+  background: var(--primary-accent-color);
+}
+
+.results-selector-cell {
+  padding: 0.5rem 1rem;
+  color: var(--text-color);
+  font-weight: 400;
+  transition: color 0.2s, font-weight 0.2s;
+}
+
+.results-selector-cell.active {
+  color: var(--bg-color);
+  font-weight: 700;
+}
+
+.results-display-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.matchday-block { /* Can be used for both matchday and team results display */
+  /* Add any specific styles for the block itself if needed,
+     most styling is in header and event-list */
+}
+
+.team-results-matchday-block {
+  margin-bottom: 0;
+}
+
+.results-block-title-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center; /* Ensure inner text is centered */
+  background: linear-gradient(90deg, var(--primary-accent-color) 0%, var(--secondary-accent-color) 100%);
+  color: var(--bg-color);
+  border-radius: 10px 10px 0 0;
+  padding: 1.2rem 0 0.8rem 0;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.results-block-title-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.2rem;
+}
+/* For "All results for X" title */
+.results-block-title-name .highlight-team-name-header {
+  color: var(--highlight-text-color);
+  text-shadow: var(--special-text-shadow);
+}
+
+
+.results-block-title-meta {
+  font-size: 1.05rem;
+  font-weight: 500;
+  background: var(--table-header-bg);
+  border-radius: 6px;
+  padding: 0.2rem 0.9rem;
+  margin-top: 0.1rem;
+  color: var(--bg-color); /* This color is on a background of primary/secondary gradient, so --bg-color is fine */
+  letter-spacing: 0.2px;
+  box-shadow: var(--table-header-shadow);
+}
+
+.results-navigation-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Team Results Specific */
+.team-results-per-matchday {
+  margin-bottom: 1.2rem;
+}
+
+.team-results-matchday-name {
+  font-weight: 600;
+  color: var(--primary-accent-color);
+  margin-bottom: 0.3rem;
+}
+
+.team-results-matchday-date {
+  font-weight: 400;
+  color: var(--text-color);
+  font-size: 0.98em;
+}
+
+.team-results-event-card {
+  background: var(--bg-color); /* Different from default event-card bg-color-offset */
+  border: 1px solid var(--primary-accent-color);
+  margin-bottom: 0.5rem;
+}
+
+.team.highlight-team-name {
+  color: var(--highlight-text-color);
+  /* font-weight: bold; /* fontWeight is handled by .font-bold class now */
+}
+
+
+/* Schedule Page Specifics */
+.schedule-list-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.schedule-list-container {
+  width: 100%;
+  max-width: 500px;
+  min-width: 300px;
+}
+
 /* Responsiveness */
-@media (max-width: 1000px) { /* Existing breakpoint */
+@media (max-width: 1000px) {
   .header {
-    padding: 0.75rem 1rem; /* Reduce padding */
+    padding: 0.75rem 1rem;
   }
   .logo-title {
-    font-size: 1.5rem; /* Reduce font size */
+    font-size: 1.5rem;
   }
   .nav-bar {
-    gap: 1rem; /* Reduce gap for nav links */
+    gap: 1rem;
+  }
+  .theme-toggle-button {
+    margin-left: 0.5rem; /* Reduce margin on smaller screens */
+    padding: 0.4rem 0.8rem;
   }
   .content-wrapper {
     flex-direction: column;
     align-items: center;
-    max-width: 95vw; /* Slightly reduce max-width */
-    margin-top: 1rem; /* Reduce top margin */
-    gap: 1.5rem; /* Adjust gap */
+    max-width: 95vw;
+    margin-top: 1rem;
+    gap: 1.5rem;
   }
   .main-content, .sidebar {
-    width: 100%; /* Make main content and sidebar full width */
-    max-width: 100%; /* Override previous max-widths */
+    width: 100%;
+    max-width: 100%;
   }
   .sidebar {
-    margin-top: 0; /* Remove margin-top if stacked directly */
+    margin-top: 0;
+  }
+  .results-by-matchday-layout {
+    flex-direction: column; /* Stack selectors and content */
+    align-items: stretch; /* Make children full width */
+    gap: 1rem;
+  }
+  .results-selector-table {
+    width: 100%; /* Full width for selector table */
+    min-width: auto; /* Reset min-width */
   }
 }
 
-@media (max-width: 768px) { /* Tablet and smaller devices */
-  .header {
-    flex-direction: column; /* Stack header items */
-    padding: 0.5rem;
-    position: static; /* Non-sticky for smaller screens to save space if header becomes too tall */
-  }
-  .nav-bar {
-    flex-direction: column; /* Stack nav links */
-    align-items: center;
-    width: 100%;
-    margin-top: 0.5rem;
-    gap: 0.5rem;
-  }
-  .nav-link {
-    padding: 0.75rem; /* Increased padding for better touch targets */
-    width: 100%;
-    text-align: center;
-    border-bottom: 2px solid transparent; /* Keep consistent border style */
-    border-radius: 4px; /* Add slight radius to stacked links */
-  }
-  .nav-link.active,
-  .nav-link:hover {
-    border-bottom-color: transparent; /* Remove border when background changes */
-    background-color: var(--secondary-accent-color); 
-    color: var(--bg-color); 
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
   }
 
+  .nav-bar {
+    display: none;
+    flex-direction: column;
+    align-items: stretch; /* Make nav items full width */
+    width: 100%;
+    background-color: var(--primary-accent-color);
+    position: absolute;
+    top: 64px; /* Adjust if header height changes */
+    left: 0;
+    padding: 0;
+    box-shadow: 0 2px 4px -1px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.06);
+    gap: 0;
+  }
+
+  .nav-bar.mobile-active {
+    display: flex;
+  }
+
+  .nav-bar .nav-link,
+  .nav-bar .theme-toggle-button { /* Apply similar styling to toggle button in mobile menu */
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 1px solid var(--secondary-accent-color);
+    border-radius: 0;
+    width: auto; /* Let flexbox handle width, override any previous fixed widths */
+    margin-left: 0; /* Reset margin for toggle button */
+  }
+  .nav-bar .nav-link:last-child,
+  .nav-bar .theme-toggle-button:last-child { /* If toggle is last */
+    border-bottom: none;
+  }
+
+  .nav-bar .nav-link.active,
+  .nav-bar .nav-link:hover,
+  .nav-bar .theme-toggle-button:hover {
+    background-color: var(--secondary-accent-color);
+    color: var(--bg-color);
+    border-bottom-color: var(--secondary-accent-color);
+  }
+  
+  .theme-toggle-button { /* If toggle is still visible outside mobile menu (e.g. if nav-bar isn't what becomes .mobile-active) */
+    font-size: 0.8rem; /* Smaller font for mobile if needed */
+    padding: 0.5rem;
+  }
+
+
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    left: 0;
+  }
   .content-wrapper {
     margin-top: 1rem;
     gap: 1rem;
-    padding: 0 0.5rem; /* Reduce padding for content wrapper */
+    padding: 0 0.5rem;
   }
   .section-title {
     font-size: 1.5rem;
@@ -334,25 +587,15 @@ body { /* Styles from index.css will apply: font-family, bg-color, color */
   }
   .standings-table th, .standings-table td {
     padding: 0.6rem 0.8rem;
-    font-size: 0.85rem; /* Reduce table font size */
+    font-size: 0.85rem;
   }
-  /* Ensure table cells have appropriate borders in this view */
-  .standings-table th, .standings-table td {
-    border-bottom: 1px solid var(--bg-color); /* Ensure this is still appropriate or adjust for dark mode */
-  }
-  @media (prefers-color-scheme: dark) {
-    .standings-table th, .standings-table td {
-      border-bottom: 1px solid rgba(239, 246, 252, 0.1); 
-    }
-  }
-
   .footer {
     padding: 1rem 0;
     font-size: 0.8rem;
   }
 }
 
-@media (max-width: 480px) { /* Small mobile phones */
+@media (max-width: 480px) {
   .logo-title {
     font-size: 1.3rem;
   }
@@ -367,255 +610,18 @@ body { /* Styles from index.css will apply: font-family, bg-color, color */
   }
   .standings-table th, .standings-table td {
     padding: 0.4rem 0.5rem;
-    font-size: 0.75rem; /* Further reduce table font size */
+    font-size: 0.75rem;
   }
   .event-card, .sidebar {
     padding: 0.75rem;
-    border-radius: 6px; /* Slightly smaller radius for smaller cards */
+    border-radius: 6px;
+  }
+  .theme-toggle-button { /* Further adjustments for very small screens if needed */
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
   }
 }
-/* Ensure html has 100% height for min-height: 100vh on main-layout to work effectively */
 html {
   height: 100%;
-}
-
-/* Comments from previous version for cleanup check:
-- body font-family: Handled by index.css.
-- Redundant box-sizing for .header: .header has width 100% and padding, so box-sizing: border-box is appropriate.
-- .standings-table tr specific backgrounds: Removed in favor of border separation and hover effect.
-- Hardcoded colors/backgrounds: All replaced with CSS variables or appropriate defaults.
-- body styles in App.css: Simplified, relying more on index.css and .main-layout.
-*/
-
-/* Hamburger Menu Styles */
-.mobile-menu-toggle {
-  display: none; /* Hidden by default */
-  background: none;
-  border: none;
-  color: var(--bg-color); /* Same as nav-link color for consistency */
-  font-size: 1.5rem; /* Larger for touch target */
-  cursor: pointer;
-  padding: 0.5rem;
-  margin-left: auto; /* Pushes it to the right, but within flex flow */
-}
-
-/* Styles for ResultsScroller inline style removal */
-.team-selector-wrapper {
-  margin-bottom: 1rem; /* Was 0, adding some space */
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.75rem; /* Was 12px */
-  width: 100%;
-}
-
-.team-selector-button {
-  min-width: 120px;
-  margin: 0;
-  cursor: pointer;
-  font-weight: normal;
-  border: 1px solid var(--text-color); /* Default border */
-  background: var(--bg-color-offset);
-  color: var(--text-color);
-  border-radius: 6px;
-  padding: 0.4rem 1rem;
-  box-shadow: none;
-  font-size: 1rem; /* Was 18px */
-  transition: background 0.2s, border 0.2s, box-shadow 0.2s;
-  white-space: nowrap;
-}
-
-.team-selector-button.active {
-  font-weight: bold;
-  border: 2px solid var(--primary-accent-color);
-  background: var(--primary-accent-color); /* Use accent color for active */
-  color: var(--bg-color); /* Text color for active button */
-  box-shadow: 0 2px 8px rgba(var(--primary-accent-color), 0.2); /* Shadow with accent color */
-}
-/* Note: .team-selector-button.nav-link overrides were removed as nav-link class is no longer applied in JSX */
-
-
-.no-games-message {
-  margin-top: 1.5rem;
-  color: var(--text-color);
-  text-align: center;
-}
-
-.matchday-scroller-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.matchday-card {
-  width: 100%;
-  max-width: 500px;
-  min-width: 300px; /* Was 320px */
-  background: var(--bg-color-offset); /* Use offset color */
-  border: 1px solid var(--primary-accent-color); /* Use accent for border */
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(var(--primary-accent-color), 0.15); /* Softer shadow with accent */
-  margin: 1.5rem 0 1rem 0; /* Was 16px for bottom margin */
-  padding: 1.5rem 1.5rem 1rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  color: var(--text-color);
-}
-
-.matchday-header {
-  margin-bottom: 1rem; /* Was 16px */
-  border-bottom: 1px solid var(--bg-color); /* Use bg-color for subtle border */
-  padding-bottom: 0.5rem; /* Was 8px */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center; /* Ensure text is centered */
-}
-
-.matchday-number {
-  font-weight: 700;
-  font-size: 1.25rem; /* Was 20px */
-  margin-bottom: 0.125rem; /* Was 2px */
-}
-
-.matchday-date {
-  font-size: 1rem; /* Was 16px */
-  color: var(--primary-accent-color);
-  margin-bottom: 0.125rem; /* Was 2px */
-}
-
-.matchday-team-name {
-  font-size: 1.125rem; /* Was 18px */
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%; /* Ensure it doesn't overflow its container */
-}
-
-.matchday-event-card { /* Specific style for event card inside matchday scroller */
-  margin-bottom: 1rem; /* Was 16px */
-  min-height: 70px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background-color: var(--bg-color); /* Slightly different background for emphasis */
-  padding: 1rem;
-}
-
-.matchday-navigation {
-  display: flex;
-  gap: 0.5rem; /* Was 8px */
-  justify-content: center;
-  align-items: center; /* Vertically align items */
-}
-
-.matchday-nav-button {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-  border: 2px solid var(--primary-accent-color);
-  background: var(--primary-accent-color);
-  color: var(--bg-color);
-  border-radius: 6px;
-  padding: 0.4rem 1rem; /* Was 0.3rem */
-  transition: background 0.2s, opacity 0.2s;
-  font-size: 0.9rem;
-}
-
-.matchday-nav-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: var(--secondary-accent-color); /* Different bg when disabled */
-  border-color: var(--secondary-accent-color);
-}
-
-.matchday-nav-button .arrow {
-  font-size: 1.125rem; /* Was 18px */
-}
-.matchday-nav-button.prev .arrow {
-  margin-right: 0.375rem; /* Was 6px */
-}
-.matchday-nav-button.next .arrow {
-  margin-left: 0.375rem; /* Was 6px */
-}
-
-.matchday-counter {
-  align-self: center;
-  font-size: 0.9rem;
-  color: var(--text-color);
-}
-
-/* Styles for SchedulePage inline style removal */
-.schedule-list-wrapper {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-.schedule-list-container {
-  width: 100%;
-  max-width: 500px;
-  min-width: 300px; /* Was 320px */
-}
-
-/* Utility class for specific margin */
-.section-title-standings {
-  margin-top: 2.5rem;
-}
-
-
-/* Responsive adjustments for Hamburger and Nav */
-@media (max-width: 768px) {
-  .mobile-menu-toggle {
-    display: block; /* Show hamburger button */
-  }
-
-  .nav-bar {
-    display: none; /* Hide original nav-bar */
-    flex-direction: column;
-    width: 100%;
-    background-color: var(--primary-accent-color); /* Same as header */
-    position: absolute;
-    top: 64px; /* Match header min-height. Header padding is 0.5rem at this breakpoint, min-height is 64px. */
-    left: 0;
-    padding: 0; /* Reset padding */
-    box-shadow: 0 2px 4px -1px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.06);
-    gap: 0; /* Reset gap */
-  }
-
-  .nav-bar.mobile-active {
-    display: flex; /* Show mobile menu */
-  }
-
-  .nav-bar .nav-link {
-    padding: 1rem; /* Full width clickable area */
-    text-align: center;
-    border-bottom: 1px solid var(--secondary-accent-color); /* Separator for links */
-    border-radius: 0; /* Remove radius from stacked links */
-    width: auto; /* Override width: 100% that was previously set for stacked links */
-  }
-  .nav-bar .nav-link:last-child {
-    border-bottom: none;
-  }
-
-  .nav-bar .nav-link.active,
-  .nav-bar .nav-link:hover {
-    background-color: var(--secondary-accent-color); /* Keep hover effect */
-    color: var(--bg-color);
-    border-bottom-color: var(--secondary-accent-color); /* Match background */
-  }
-
-  /* Adjust header to make space for toggle and prevent column stacking of logo/toggle */
-  .header {
-    flex-direction: row; /* Keep logo and toggle on the same row */
-    justify-content: space-between;
-    align-items: center;
-    position: sticky; /* Ensure it remains sticky if it was before */
-  left: 0; /* Ensure header is always aligned to the left edge */
-  }
 }
 ```
